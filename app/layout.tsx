@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { ScrollReveal } from "@/components/scroll-reveal";
 import { cn } from "@/lib/utils";
 
 const amazonEmber = localFont({
@@ -103,6 +104,7 @@ export default function RootLayout({
     <html lang="en" className={cn(amazonEmber.variable, "font-sans")}>
       <body className="min-h-screen antialiased">
         <Navbar />
+        <ScrollReveal />
         <main>{children}</main>
         <Footer />
       </body>
