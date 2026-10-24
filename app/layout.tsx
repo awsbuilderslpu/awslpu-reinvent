@@ -1,24 +1,40 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
-import { Navbar } from "./components/navbar";
+import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
+import { cn } from "@/lib/utils";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const amazonEmber = localFont({
+  src: [
+    {
+      path: "./fonts/AmazonEmber_Lt.ttf",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "./fonts/AmazonEmber_Rg.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Amazon-Ember-Medium.ttf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "./fonts/AmazonEmber_Bd.ttf",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-amazon-ember",
   display: "swap",
+  fallback: ["Arial", "Helvetica", "sans-serif"],
 });
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const siteUrl = "https://reinvent.awslpu.in";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL("https://reinvent.awslpu.in"),
 
   title: {
     default: "Re:Invent Fest 2026 | AWS Student Builder Group LPU",
@@ -26,61 +42,33 @@ export const metadata: Metadata = {
   },
 
   description:
-    "Five days of technology, cloud computing, AI, and innovation at Re:Invent Fest 2026, hosted by AWS Student Builder Group at Lovely Professional University, Punjab, India, from November 30 to December 4, 2026.",
+    "Re:Invent Fest 2026 is a five-day technology festival hosted by AWS Student Builder Group at Lovely Professional University, Punjab, from November 30 to December 4, 2026.",
 
   applicationName: "Re:Invent Fest 2026",
 
-  keywords: [
-    "Re:Invent Fest 2026",
-    "AWS Student Builder Group LPU",
-    "AWS LPU",
-    "Lovely Professional University",
-    "LPU tech fest",
-    "cloud computing event",
-    "AI and innovation",
-    "developer conference India",
-    "technology festival Punjab",
-    "student developer community",
-    "Phagwara tech events",
-  ],
-
-  authors: [
-    {
-      name: "AWS Student Builder Group LPU",
-      url: "https://awslpu.in",
-    },
-  ],
-
-  creator: "AWS Student Builder Group LPU",
-  publisher: "AWS Student Builder Group LPU",
-
-  alternates: {
-    canonical: siteUrl,
-  },
-
   openGraph: {
     type: "website",
-    url: siteUrl,
+    url: "https://reinvent.awslpu.in",
     siteName: "Re:Invent Fest 2026",
-    title: "Re:Invent Fest 2026 | Build Beyond Limits",
+    title: "Re:Invent Fest 2026",
     description:
-      "A five-day celebration of cloud, AI, and technology at Lovely Professional University. November 30 – December 4, 2026.",
-    locale: "en_IN",
+      "November 30 - December 4, 2026 · Lovely Professional University, Punjab.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Re:Invent Fest 2026 — AWS Student Builder Group LPU",
+        alt: "Re:Invent Fest 2026 at Lovely Professional University",
       },
     ],
+    locale: "en_IN",
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Re:Invent Fest 2026 | Build Beyond Limits",
+    title: "Re:Invent Fest 2026",
     description:
-      "Five days. Bold ideas. Limitless innovation. November 30 – December 4, 2026, at LPU.",
+      "A five-day technology festival at Lovely Professional University, November 30 – December 4, 2026.",
     images: ["/og-image.png"],
   },
 
@@ -102,7 +90,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#080914",
+  themeColor: "#050505",
   colorScheme: "dark",
 };
 
@@ -112,13 +100,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en-IN"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="flex min-h-full flex-col">
+    <html lang="en" className={cn(amazonEmber.variable, "font-sans")}>
+      <body className="min-h-screen antialiased">
         <Navbar />
-        {children}
+        <main>{children}</main>
+        <Footer />
       </body>
     </html>
   );
