@@ -35,37 +35,45 @@ const experiences = [
   },
 ];
 
-export default function ExperiencePage() {
-    const [videoBlend, setVideoBlend] = useState(0);
+const journey = [
+  ["30 NOV", "THE BEGINNING"],
+  ["01 DEC", "NEW PERSPECTIVES"],
+  ["02 DEC", "IDEAS & POSSIBILITIES"],
+  ["03 DEC", "BEYOND THE ANNOUNCEMENTS"],
+  ["04 DEC", "WHAT COMES NEXT"],
+];
 
-    useEffect(() => {
-    const secondScene = document.querySelector<HTMLElement>(
-        '[data-video-scene="second"]',
+export default function ExperiencePage() {
+  const [videoBlend, setVideoBlend] = useState(0);
+
+  useEffect(() => {
+    const transitionScene = document.querySelector<HTMLElement>(
+      '[data-video-scene="second"]',
     );
 
-    if (!secondScene) return;
+    if (!transitionScene) return;
 
     let ticking = false;
 
     const updateBlend = () => {
-        const rect = secondScene.getBoundingClientRect();
-        const start = window.innerHeight * 0.9;
-        const end = window.innerHeight * 0.15;
+      const rect = transitionScene.getBoundingClientRect();
+      const start = window.innerHeight * 0.85;
+      const end = window.innerHeight * 0.2;
 
-        const progress = Math.max(
+      const progress = Math.max(
         0,
         Math.min(1, (start - rect.top) / (start - end)),
-        );
+      );
 
-        setVideoBlend(progress);
-        ticking = false;
+      setVideoBlend(progress);
+      ticking = false;
     };
 
     const onScroll = () => {
-        if (ticking) return;
+      if (ticking) return;
 
-        ticking = true;
-        window.requestAnimationFrame(updateBlend);
+      ticking = true;
+      window.requestAnimationFrame(updateBlend);
     };
 
     updateBlend();
@@ -74,10 +82,10 @@ export default function ExperiencePage() {
     window.addEventListener("resize", updateBlend);
 
     return () => {
-        window.removeEventListener("scroll", onScroll);
-        window.removeEventListener("resize", updateBlend);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", updateBlend);
     };
-    }, []);
+  }, []);
 
   return (
     <main className="relative isolate min-h-screen overflow-clip bg-[#050505] text-white">
@@ -86,33 +94,31 @@ export default function ExperiencePage() {
         className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
       >
         <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            style={{ opacity: 1 - videoBlend }}
-            className="absolute inset-0 h-full w-full object-cover"
-            >
-            <source src="/videos/website_loop_forever.mp4" type="video/mp4" />
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          style={{ opacity: 1 - videoBlend }}
+          className="absolute inset-0 h-full w-full object-cover"
+        >
+          <source src="/videos/website_loop_forever.mp4" type="video/mp4" />
         </video>
 
         <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            style={{ opacity: videoBlend }}
-            className="absolute inset-0 h-full w-full object-cover"
-            >
-            <source src="/videos/about_neon_waves.mp4" type="video/mp4" />
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          style={{ opacity: videoBlend }}
+          className="absolute inset-0 h-full w-full object-cover"
+        >
+          <source src="/videos/about_neon_waves.mp4" type="video/mp4" />
         </video>
 
         <div className="absolute inset-0 bg-black/40" />
-
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(108,0,255,0.10),transparent_55%)]" />
-
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(5,5,5,0.35),transparent_35%,rgba(5,5,5,0.45))]" />
       </div>
 
@@ -182,8 +188,8 @@ export default function ExperiencePage() {
 
             <p className="max-w-lg text-base leading-8 text-white/70 sm:text-lg">
               Follow the latest developments, discover something new, and
-              share the experience with people who are just as curious as
-              you are.
+              share the experience with people who are just as curious as you
+              are.
             </p>
           </div>
 
@@ -216,7 +222,10 @@ export default function ExperiencePage() {
         </div>
       </section>
 
-      <section className="relative z-10 overflow-hidden px-6 py-24 sm:px-10 md:px-16 md:py-32 lg:px-24">
+      <section
+        data-video-scene="second"
+        className="relative z-10 overflow-hidden px-6 py-24 sm:px-10 md:px-16 md:py-32 lg:px-24"
+      >
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(5,5,5,0.3),rgba(5,5,5,0.1))]" />
 
         <div className="relative mx-auto max-w-[1600px]">
@@ -238,13 +247,7 @@ export default function ExperiencePage() {
           </p>
 
           <div className="mt-16 border-t border-white/25">
-            {[
-              ["30 NOV", "THE BEGINNING"],
-              ["01 DEC", "NEW PERSPECTIVES"],
-              ["02 DEC", "IDEAS & POSSIBILITIES"],
-              ["03 DEC", "BEYOND THE ANNOUNCEMENTS"],
-              ["04 DEC", "WHAT COMES NEXT"],
-            ].map(([date, title], index) => (
+            {journey.map(([date, title], index) => (
               <div
                 key={date}
                 className="grid grid-cols-[40px_1fr] gap-4 border-b border-white/25 py-6 sm:grid-cols-[64px_140px_1fr] sm:items-center sm:gap-8 sm:py-8"
@@ -279,15 +282,8 @@ export default function ExperiencePage() {
         </div>
       </section>
 
-      <section
-        data-video-scene="second"
-        className="relative z-10 flex min-h-[85svh] flex-col justify-center overflow-hidden px-6 py-28 sm:px-10 md:min-h-screen md:px-16 md:py-36 lg:px-24"
-      >
-        <div className="pointer-events-none absolute inset-0 bg-black/35" />
-
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(5,5,5,0.65),rgba(5,5,5,0.08)_100%)]" />
-
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(0deg,rgba(5,5,5,0.6),transparent_40%)]" />
+      <section className="relative z-10 overflow-hidden px-6 py-24 sm:px-10 md:px-16 md:py-32 lg:px-24">
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(5,5,5,0.3),rgba(5,5,5,0.1))]" />
 
         <div className="relative mx-auto w-full max-w-[1600px]">
           <p className="mb-8 flex items-center gap-3 text-xs tracking-[0.2em] text-[#FF2D87] sm:text-sm">
