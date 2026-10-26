@@ -4,23 +4,31 @@ import { useEffect } from "react";
 
 export function ScrollReveal() {
   useEffect(() => {
-    const elements = document.querySelectorAll<HTMLElement>(".reveal");
+    let observer: IntersectionObserver | undefined;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.1 },
-    );
+    const timeout = window.setTimeout(() => {
+      const elements = document.querySelectorAll<HTMLElement>(".reveal");
 
-    elements.forEach((element) => observer.observe(element));
+      const revealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              revealObserver.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.1 },
+      );
 
-    return () => observer.disconnect();
+      elements.forEach((element) => revealObserver.observe(element));
+      observer = revealObserver;
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeout);
+      observer?.disconnect();
+    };
   }, []);
 
   return null;
