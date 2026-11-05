@@ -104,9 +104,9 @@ export default function RootLayout({
     <html lang="en" className={cn(amazonEmber.variable, "font-sans")}>
       <body className="min-h-screen antialiased">
         <Navbar />
-        <ScrollReveal />
         <main>{children}</main>
         <Footer />
+        <ScrollReveal />
       </body>
     </html>
   );

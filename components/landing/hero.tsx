@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 
 export function Hero() {
@@ -34,6 +32,7 @@ export function Hero() {
         <div className="max-w-5xl">
           <p
             data-reveal
+            suppressHydrationWarning
             className="reveal mb-5 text-sm font-medium text-white/85 sm:text-base"
           >
             AWS Student Builder Group{" "}
@@ -42,6 +41,7 @@ export function Hero() {
 
           <h1
             data-reveal
+            suppressHydrationWarning
             className="reveal reveal-delay-1 text-[clamp(4rem,17vw,7rem)] font-light leading-[0.82] tracking-[-0.085em] sm:text-[clamp(5rem,13vw,12rem)] sm:leading-[0.76]"
           >
             re<span className="text-[#FF2D87]">:</span>
@@ -49,7 +49,11 @@ export function Hero() {
             Invent
           </h1>
 
-          <div data-reveal className="reveal reveal-delay-2 mt-7 max-w-xl sm:mt-9">
+          <div
+            data-reveal
+            suppressHydrationWarning
+            className="reveal reveal-delay-2 mt-7 max-w-xl sm:mt-9"
+          >
             <p className="max-w-lg text-sm font-light leading-6 text-white/90 sm:text-base sm:leading-8">
               Five days of technology, ideas, and building what's next. Join
               developers, students, and innovators at Lovely Professional
@@ -61,9 +65,13 @@ export function Hero() {
             </p>
           </div>
 
-          <div data-reveal className="reveal reveal-delay-3 mt-7 sm:mt-8">
+          <div
+            data-reveal
+            suppressHydrationWarning
+            className="reveal reveal-delay-3 mt-7 sm:mt-8"
+          >
             <Link
-              href="#register"
+              href="/tickets"
               className="group inline-flex min-h-12 items-center gap-6 border border-[#FF00D4]/70 bg-linear-to-r from-[#FF00D4]/20 via-[#C000FF]/15 to-[#6C00FF]/20 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-white backdrop-blur-sm transition-colors duration-300 hover:border-[#FF2D87] hover:from-[#FF00D4]/35 hover:via-[#C000FF]/25 hover:to-[#6C00FF]/35 sm:min-h-14 sm:gap-8 sm:px-6 sm:py-4"
             >
               Explore the festival

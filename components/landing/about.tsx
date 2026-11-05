@@ -12,11 +12,17 @@ export function About() {
       <div className="mx-auto max-w-[1600px]">
         <div className="grid grid-cols-1 gap-12 sm:gap-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-24">
           <div className="min-w-0">
-            <p className="reveal mb-6 text-sm font-medium text-white/60 sm:mb-8">
+            <p
+              suppressHydrationWarning
+              className="reveal mb-6 text-sm font-medium text-white/60 sm:mb-8"
+            >
               A new chapter in campus technology
             </p>
 
-            <h2 className="reveal reveal-delay-1 text-[clamp(3.5rem,15vw,5.5rem)] font-light leading-[0.88] tracking-[-0.075em] sm:text-[clamp(4.5rem,9vw,8rem)]">
+            <h2
+              suppressHydrationWarning
+              className="reveal reveal-delay-1 text-[clamp(3.5rem,15vw,5.5rem)] font-light leading-[0.88] tracking-[-0.075em] sm:text-[clamp(4.5rem,9vw,8rem)]"
+            >
               Imagine.
               <br />
               Build.
@@ -26,14 +32,20 @@ export function About() {
               </span>
             </h2>
 
-            <p className="reveal reveal-delay-2 mt-7 max-w-xl text-[15px] font-light leading-7 text-white/65 sm:mt-10 sm:text-lg sm:leading-9">
+            <p
+              suppressHydrationWarning
+              className="reveal reveal-delay-2 mt-7 max-w-xl text-[15px] font-light leading-7 text-white/65 sm:mt-10 sm:text-lg sm:leading-9"
+            >
               Five days dedicated to the people who turn curiosity into
               creation. Re:Invent Fest 2026 brings developers, students,
               and innovators together to explore technology, exchange ideas,
               and build what comes next at Lovely Professional University.
             </p>
 
-            <div className="reveal reveal-delay-3 mt-7 flex flex-wrap items-center gap-3 sm:mt-10 sm:gap-4">
+            <div
+              suppressHydrationWarning
+              className="reveal reveal-delay-3 mt-7 flex flex-wrap items-center gap-3 sm:mt-10 sm:gap-4"
+            >
               <span className="h-px w-8 shrink-0 bg-linear-to-r from-[#FF00D4] to-[#6C00FF] sm:w-12" />
               <span className="text-sm leading-6 text-white/75">
                 November 30 to December 4, 2026
@@ -42,7 +54,10 @@ export function About() {
           </div>
 
           <div className="flex min-w-0 flex-col justify-end">
-            <div className="reveal border-t border-white/15 pt-6 sm:pt-8">
+            <div
+              suppressHydrationWarning
+              className="reveal border-t border-white/15 pt-6 sm:pt-8"
+            >
               <span className="text-sm font-medium text-[#FF2D87]">
                 The community behind the festival
               </span>

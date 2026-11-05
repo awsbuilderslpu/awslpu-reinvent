@@ -1,13 +1,18 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 export function ScrollReveal() {
+  const pathname = usePathname();
+
   useEffect(() => {
     let observer: IntersectionObserver | undefined;
 
-    const timeout = window.setTimeout(() => {
-      const elements = document.querySelectorAll<HTMLElement>(".reveal");
+    const frame = window.requestAnimationFrame(() => {
+      const elements = document.querySelectorAll<HTMLElement>(".reveal:not(.is-visible)");
+
+      if (!elements.length) return;
 
       const revealObserver = new IntersectionObserver(
         (entries) => {
@@ -23,13 +28,13 @@ export function ScrollReveal() {
 
       elements.forEach((element) => revealObserver.observe(element));
       observer = revealObserver;
-    }, 0);
+    });
 
     return () => {
-      window.clearTimeout(timeout);
+      window.cancelAnimationFrame(frame);
       observer?.disconnect();
     };
-  }, []);
+  }, [pathname]);
 
   return null;
 }
