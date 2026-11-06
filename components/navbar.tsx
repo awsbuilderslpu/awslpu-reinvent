@@ -6,8 +6,8 @@ import Link from "next/link";
 const navLinks = [
   { label: "HOME", href: "/" },
   { label: "EXPERIENCE", href: "/experience" },
-  { label: "AGENDA", href: "/schedule" },
-  { label: "TICKETS", href: "/tickets" },
+  { label: "AGENDA", href: "#agenda" },
+  { label: "SPEAKERS", href: "#speakers" },
   { label: "ABOUT", href: "/about" },
 ];
 
@@ -43,12 +43,6 @@ export function Navbar() {
               re<span className="text-[#e83cff]">:</span>Invent
             </span>
           </span>
-
-          <span className="mt-4 hidden border-l border-white/20 pl-3 text-[9px] font-medium uppercase leading-relaxed tracking-[0.2em] text-white/55 sm:block">
-            FEST
-            <br />
-            2026
-          </span>
         </Link>
 
         <div className="hidden items-center gap-7 xl:flex">
@@ -67,20 +61,12 @@ export function Navbar() {
           <Link
             href="/auth?mode=login"
             onClick={() => setMenuOpen(false)}
-            className="hidden text-[10px] font-semibold uppercase tracking-[0.17em] text-white/70 transition-colors duration-200 hover:text-white sm:inline-block"
-          >
-            Sign In
-          </Link>
-
-          <Link
-            href="/auth?mode=register"
-            onClick={() => setMenuOpen(false)}
             className="group relative inline-flex h-9 items-center justify-center overflow-hidden border border-white/25 px-3.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-white transition-all duration-300 hover:border-[#ec35ff] hover:shadow-[0_0_24px_rgba(221,45,255,0.22)] sm:h-10 sm:px-6 sm:text-[10px] sm:tracking-[0.17em]"
           >
             <span className="absolute inset-0 -translate-x-full bg-linear-to-r from-[#702cff] to-[#ed28bc] transition-transform duration-300 group-hover:translate-x-0" />
 
             <span className="relative flex items-center gap-2 sm:gap-3">
-              Register
+              Login
               <span className="text-sm transition-transform duration-300 group-hover:translate-x-1">
                 ↗
               </span>
@@ -146,7 +132,7 @@ export function Navbar() {
         </div>
 
         <div className="flex flex-1 flex-col px-6 pt-8">
-          {navLinks.map((link, index) => (
+          {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -161,26 +147,15 @@ export function Navbar() {
             </Link>
           ))}
 
-          <div className="mt-8 flex flex-col gap-3">
-            <Link
-              href="/auth?mode=register"
-              tabIndex={menuOpen ? 0 : -1}
-              onClick={() => setMenuOpen(false)}
-              className="flex h-12 items-center justify-between border border-[#FF00D4]/50 bg-linear-to-r from-[#FF00D4]/15 to-[#6C00FF]/15 px-4 text-[10px] font-semibold uppercase tracking-[0.17em] text-white transition-colors hover:border-[#FF2D87]"
-            >
-              Register for the festival
-              <span className="text-[#FF2D87]">↗</span>
-            </Link>
-
-            <Link
-              href="/auth?mode=login"
-              tabIndex={menuOpen ? 0 : -1}
-              onClick={() => setMenuOpen(false)}
-              className="flex h-11 items-center justify-center border border-white/15 bg-white/5 text-[10px] font-semibold uppercase tracking-[0.17em] text-white/70 transition-colors hover:border-white/30 hover:text-white"
-            >
-              Sign In to Account
-            </Link>
-          </div>
+          <Link
+            href="/auth?mode=register"
+            tabIndex={menuOpen ? 0 : -1}
+            onClick={() => setMenuOpen(false)}
+            className="mt-8 flex h-12 items-center justify-between border border-[#FF00D4]/50 bg-linear-to-r from-[#FF00D4]/15 to-[#6C00FF]/15 px-4 text-[10px] font-semibold uppercase tracking-[0.17em] text-white transition-colors hover:border-[#FF2D87]"
+          >
+            Register for the festival
+            <span className="text-[#FF2D87]">↗</span>
+          </Link>
         </div>
 
         <div className="border-t border-white/10 px-6 py-6">
