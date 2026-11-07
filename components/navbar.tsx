@@ -2,17 +2,21 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/providers/auth-provider";
 
 const navLinks = [
   { label: "HOME", href: "/" },
   { label: "EXPERIENCE", href: "/experience" },
-  { label: "AGENDA", href: "#agenda" },
-  { label: "SPEAKERS", href: "#speakers" },
+  { label: "SCHEDULE", href: "/schedule" },
+  { label: "TICKETS", href: "/tickets" },
   { label: "ABOUT", href: "/about" },
 ];
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { user, loading, authenticated, logout } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
@@ -21,6 +25,12 @@ export function Navbar() {
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
+
+  const handleLogout = async () => {
+    setMenuOpen(false);
+    await logout();
+    router.push("/");
+  };
 
   return (
     <header className="absolute inset-x-0 top-0 z-50">
@@ -59,19 +69,47 @@ export function Navbar() {
 
         <div className="flex items-center gap-3">
           <Link
-            href="/auth?mode=login"
-            onClick={() => setMenuOpen(false)}
-            className="group relative inline-flex h-9 items-center justify-center overflow-hidden border border-white/25 px-3.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-white transition-all duration-300 hover:border-[#ec35ff] hover:shadow-[0_0_24px_rgba(221,45,255,0.22)] sm:h-10 sm:px-6 sm:text-[10px] sm:tracking-[0.17em]"
+            href="/tickets"
+            className="hidden h-9 items-center justify-center border border-[#FF00D4]/60 bg-linear-to-r from-[#FF00D4]/20 to-[#8B5CFF]/20 px-4 text-[9px] font-semibold uppercase tracking-[0.15em] text-white transition-all hover:border-[#FF2D87] hover:shadow-[0_0_20px_rgba(255,0,212,0.25)] md:inline-flex lg:h-10 lg:px-5 lg:text-[10px]"
           >
-            <span className="absolute inset-0 -translate-x-full bg-linear-to-r from-[#702cff] to-[#ed28bc] transition-transform duration-300 group-hover:translate-x-0" />
-
-            <span className="relative flex items-center gap-2 sm:gap-3">
-              Login
-              <span className="text-sm transition-transform duration-300 group-hover:translate-x-1">
-                ↗
-              </span>
-            </span>
+            Get Tickets
           </Link>
+
+          {!loading && (
+            authenticated ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  className="inline-flex h-9 items-center justify-center border border-white/25 px-4 text-[9px] font-semibold uppercase tracking-[0.15em] text-white transition-all hover:border-[#ec35ff] hover:shadow-[0_0_24px_rgba(221,45,255,0.22)] sm:h-10 sm:px-6 sm:text-[10px] sm:tracking-[0.17em]"
+                >
+                  Dashboard
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="hidden text-[10px] font-semibold uppercase tracking-[0.15em] text-white/55 transition-colors hover:text-white sm:block"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/auth?mode=login"
+                onClick={() => setMenuOpen(false)}
+                className="group relative inline-flex h-9 items-center justify-center overflow-hidden border border-white/25 px-3.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-white transition-all duration-300 hover:border-[#ec35ff] hover:shadow-[0_0_24px_rgba(221,45,255,0.22)] sm:h-10 sm:px-6 sm:text-[10px] sm:tracking-[0.17em]"
+              >
+                <span className="absolute inset-0 -translate-x-full bg-linear-to-r from-[#702cff] to-[#ed28bc] transition-transform duration-300 group-hover:translate-x-0" />
+
+                <span className="relative flex items-center gap-2 sm:gap-3">
+                  Login
+                  <span className="text-sm transition-transform duration-300 group-hover:translate-x-1">
+                    ↗
+                  </span>
+                </span>
+              </Link>
+            )
+          )}
 
           <button
             type="button"
@@ -111,7 +149,7 @@ export function Navbar() {
         id="mobile-navigation"
         aria-label="Mobile navigation"
         aria-hidden={!menuOpen}
-        className={`fixed right-0 top-0 z-[65] flex h-dvh w-[min(82vw,360px)] flex-col border-l border-white/10 bg-[#08060c]/75 shadow-[-20px_0_80px_rgba(0,0,0,0.3)] backdrop-blur-2xl transition-transform duration-300 ease-out xl:hidden ${
+        className={`fixed right-0 top-0 z-[65] flex h-dvh w-[min(82vw,360px)] flex-col border-l border-white/10 bg-[#08060c]/90 shadow-[-20px_0_80px_rgba(0,0,0,0.5)] backdrop-blur-2xl transition-transform duration-300 ease-out xl:hidden ${
           menuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -131,14 +169,14 @@ export function Navbar() {
           </button>
         </div>
 
-        <div className="flex flex-1 flex-col px-6 pt-8">
+        <div className="flex flex-1 flex-col px-6 pt-6 overflow-y-auto">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               tabIndex={menuOpen ? 0 : -1}
               onClick={() => setMenuOpen(false)}
-              className="group flex items-center justify-between border-b border-white/10 py-5 text-sm font-medium tracking-[0.12em] text-white/70 transition-colors hover:text-white"
+              className="group flex items-center justify-between border-b border-white/10 py-4 text-sm font-medium tracking-[0.12em] text-white/70 transition-colors hover:text-white"
             >
               <span>{link.label}</span>
               <span className="text-xs text-[#FF2D87] transition-transform duration-300 group-hover:translate-x-1">
@@ -148,23 +186,50 @@ export function Navbar() {
           ))}
 
           <Link
-            href="/auth?mode=register"
+            href="/tickets"
             tabIndex={menuOpen ? 0 : -1}
             onClick={() => setMenuOpen(false)}
-            className="mt-8 flex h-12 items-center justify-between border border-[#FF00D4]/50 bg-linear-to-r from-[#FF00D4]/15 to-[#6C00FF]/15 px-4 text-[10px] font-semibold uppercase tracking-[0.17em] text-white transition-colors hover:border-[#FF2D87]"
+            className="mt-6 flex h-11 items-center justify-between border border-[#FF00D4]/70 bg-linear-to-r from-[#FF00D4]/20 to-[#8B5CFF]/20 px-4 text-[10px] font-semibold uppercase tracking-[0.17em] text-white transition-colors hover:border-[#FF2D87]"
           >
-            Register for the festival
+            Get Tickets
             <span className="text-[#FF2D87]">↗</span>
           </Link>
-        </div>
 
-        <div className="border-t border-white/10 px-6 py-6">
-          <p className="text-[9px] uppercase tracking-[0.18em] text-white/40">
-            AWS Student Builder Group · LPU
-          </p>
-          <p className="mt-2 text-xs text-white/55">
-            November 30 to December 4, 2026
-          </p>
+          {!loading && (
+            authenticated ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  tabIndex={menuOpen ? 0 : -1}
+                  onClick={() => setMenuOpen(false)}
+                  className="mt-4 flex h-11 items-center justify-between border border-white/20 bg-white/[0.04] px-4 text-[10px] font-semibold uppercase tracking-[0.17em] text-white transition-colors hover:border-[#FF2D87]"
+                >
+                  My Dashboard
+                  <span className="text-[#FF2D87]">↗</span>
+                </Link>
+
+                <button
+                  type="button"
+                  tabIndex={menuOpen ? 0 : -1}
+                  onClick={handleLogout}
+                  className="mt-4 flex h-10 items-center justify-between border border-white/15 px-4 text-[10px] font-semibold uppercase tracking-[0.17em] text-white/60 transition-colors hover:border-white/40 hover:text-white"
+                >
+                  Logout
+                  <span>→</span>
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/auth?mode=login"
+                tabIndex={menuOpen ? 0 : -1}
+                onClick={() => setMenuOpen(false)}
+                className="mt-4 flex h-11 items-center justify-between border border-white/20 px-4 text-[10px] font-semibold uppercase tracking-[0.17em] text-white/80 transition-colors hover:text-white"
+              >
+                Attendee Sign In
+                <span className="text-[#FF2D87]">↗</span>
+              </Link>
+            )
+          )}
         </div>
       </aside>
     </header>

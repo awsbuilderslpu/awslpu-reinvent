@@ -1,7 +1,10 @@
 import { Hero } from "@/components/landing/hero";
 import { EventMarquee } from "@/components/landing/event-marquee";
 import { About } from "@/components/landing/about";
+import { ScheduleTeaser } from "@/components/landing/schedule-teaser";
+import { FeaturedSpeakers } from "@/components/landing/featured-speakers";
 import { EventHighlights } from "@/components/landing/event-highlights";
+import { TicketTeaser } from "@/components/landing/ticket-teaser";
 import { SponsorsPartners } from "@/components/landing/SponsorsPartners";
 
 export default function Home() {
@@ -10,7 +13,10 @@ export default function Home() {
       <Hero />
       <EventMarquee />
       <About />
+      <ScheduleTeaser />
+      <FeaturedSpeakers />
       <EventHighlights />
+      <TicketTeaser />
       <SponsorsPartners />
     </main>
   );

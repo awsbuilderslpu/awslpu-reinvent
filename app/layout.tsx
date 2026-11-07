@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { ScrollReveal } from "@/components/scroll-reveal";
+import { AuthProvider } from "@/providers/auth-provider";
 import { cn } from "@/lib/utils";
 
 const amazonEmber = localFont({
@@ -33,6 +34,8 @@ const amazonEmber = localFont({
   display: "swap",
   fallback: ["Arial", "Helvetica", "sans-serif"],
 });
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://reinvent.awslpu.in"),
@@ -103,10 +106,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn(amazonEmber.variable, "font-sans")}>
       <body className="min-h-screen antialiased">
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
-        <ScrollReveal />
+        <AuthProvider>
+          <Navbar />
+          <main>{children}</main>
+          <Footer />
+          <ScrollReveal />
+        </AuthProvider>
       </body>
     </html>
   );

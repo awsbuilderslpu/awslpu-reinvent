@@ -2,7 +2,6 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import {
   AlertCircle,
   ArrowRight,
@@ -10,31 +9,41 @@ import {
   Lock,
   User,
 } from "lucide-react";
-import {
-  apiRequest,
-  setStoredToken,
-  type AuthResponse,
-} from "@/lib/api";
+import { useAuth } from "@/providers/auth-provider";
+
+function normalizePhone(value: string) {
+  const cleaned = value.replace(/[^\d+]/g, "");
+
+  if (/^\d{10}$/.test(cleaned)) {
+    return `+91${cleaned}`;
+  }
+
+  return cleaned;
+}
 
 function AuthForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { login, register } = useAuth();
 
   const initialMode =
     searchParams.get("mode") === "login" ? "login" : "register";
 
   const [authMode, setAuthMode] = useState<"login" | "register">(initialMode);
   const [loading, setLoading] = useState(false);
+
   const [statusMessage, setStatusMessage] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
 
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [workspaceName, setWorkspaceName] = useState("");
+  const [workspaceId, setWorkspaceId] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [regNumber, setRegNumber] = useState("");
   const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     const mode = searchParams.get("mode");
@@ -44,59 +53,81 @@ function AuthForm() {
     }
   }, [searchParams]);
 
+  const redirectTarget = searchParams.get("redirect") || "/dashboard";
+  const redirectParam = searchParams.get("redirect");
+  const redirectQuery = redirectParam ? `&redirect=${encodeURIComponent(redirectParam)}` : "";
+
   const switchMode = (mode: "login" | "register") => {
     setAuthMode(mode);
     setStatusMessage(null);
-    router.replace(`/auth?mode=${mode}`, { scroll: false });
+    router.replace(`/auth?mode=${mode}${redirectQuery}`, { scroll: false });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setStatusMessage(null);
 
     try {
+      const normalizedEmail = email.trim().toLowerCase();
+
       if (authMode === "register") {
-        const res = await apiRequest<AuthResponse>("/auth/register", {
+        const response = await fetch("/api/auth/register", {
           method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({
-            email,
+            first_name: firstName.trim(),
+            last_name: lastName.trim(),
+            email: normalizedEmail,
+            phone: normalizePhone(phone),
+            workspace_name: workspaceName.trim(),
+            workspace_uid: workspaceId.trim(),
             password,
-            full_name: fullName,
-            registration_number: regNumber || undefined,
-            phone: phone || undefined,
           }),
         });
 
-        setStoredToken(res.access_token);
+        const data = await response.json().catch(() => null);
+
+        if (!response.ok) {
+          throw new Error(
+            data?.detail ||
+              data?.message ||
+              "Registration failed. Please try again."
+          );
+        }
+
+        setPassword("");
+        setAuthMode("login");
+        router.replace(`/auth?mode=login${redirectQuery}`, { scroll: false });
 
         setStatusMessage({
           type: "success",
-          text: "Account created successfully. Redirecting...",
+          text: "Account created successfully! Please sign in to continue.",
         });
 
-        setTimeout(() => router.push("/tickets"), 1200);
-      } else {
-        const res = await apiRequest<AuthResponse>("/auth/login", {
-          method: "POST",
-          body: JSON.stringify({ email, password }),
-        });
-
-        setStoredToken(res.access_token);
-
-        setStatusMessage({
-          type: "success",
-          text: `Welcome back, ${res.user.full_name}! Redirecting...`,
-        });
-
-        setTimeout(() => router.push("/tickets"), 1000);
+        return;
       }
-    } catch (err: any) {
+
+      await login({
+        email: normalizedEmail,
+        password,
+      });
+
+      setStatusMessage({
+        type: "success",
+        text: "Welcome back! Redirecting...",
+      });
+
+      setTimeout(() => router.push(redirectTarget), 1000);
+    } catch (err) {
       setStatusMessage({
         type: "error",
         text:
-          err.message ||
-          "Authentication failed. Please verify your credentials.",
+          err instanceof Error
+            ? err.message
+            : "Authentication failed. Please verify your details.",
       });
     } finally {
       setLoading(false);
@@ -250,40 +281,66 @@ function AuthForm() {
             <form onSubmit={handleSubmit} className="space-y-7">
               {authMode === "register" && (
                 <>
-                  <div className="border-b border-white/20 transition-colors focus-within:border-[#FF00D4]">
-                    <label className={labelClass}>Full Name *</label>
-                    <div className="flex items-center gap-3">
-                      <User className="h-4 w-4 shrink-0 text-white/30" />
+                  <div className="grid grid-cols-2 gap-5">
+                    <div className="border-b border-white/20 transition-colors focus-within:border-[#FF00D4]">
+                      <label className={labelClass}>First Name *</label>
+                      <div className="flex items-center gap-3">
+                        <User className="h-4 w-4 shrink-0 text-white/30" />
+                        <input
+                          type="text"
+                          required
+                          autoComplete="given-name"
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                          placeholder="First name"
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="border-b border-white/20 transition-colors focus-within:border-[#FF00D4]">
+                      <label className={labelClass}>Last Name *</label>
                       <input
                         type="text"
                         required
-                        autoComplete="name"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        placeholder="Your full name"
+                        autoComplete="family-name"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Last name"
                         className={inputClass}
                       />
                     </div>
                   </div>
 
                   <div className="border-b border-white/20 transition-colors focus-within:border-[#FF00D4]">
-                    <label className={labelClass}>
-                      Registration Number / Student ID
-                    </label>
+                    <label className={labelClass}>Workspace Name *</label>
                     <input
                       type="text"
-                      autoComplete="off"
-                      value={regNumber}
-                      onChange={(e) => setRegNumber(e.target.value)}
-                      placeholder="Your university ID"
+                      required
+                      value={workspaceName}
+                      onChange={(e) => setWorkspaceName(e.target.value)}
+                      placeholder="Your workspace name"
                       className={inputClass}
                     />
                   </div>
 
                   <div className="border-b border-white/20 transition-colors focus-within:border-[#FF00D4]">
-                    <label className={labelClass}>Phone Number</label>
+                    <label className={labelClass}>Workspace ID *</label>
+                    <input
+                      type="text"
+                      required
+                      value={workspaceId}
+                      onChange={(e) => setWorkspaceId(e.target.value)}
+                      placeholder="Your workspace ID"
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div className="border-b border-white/20 transition-colors focus-within:border-[#FF00D4]">
+                    <label className={labelClass}>Phone Number *</label>
                     <input
                       type="tel"
+                      required
                       autoComplete="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
