@@ -1,39 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { ScrollReveal } from "@/components/scroll-reveal";
 import { AuthProvider } from "@/providers/auth-provider";
-import { cn } from "@/lib/utils";
-
-const amazonEmber = localFont({
-  src: [
-    {
-      path: "./fonts/AmazonEmber_Lt.ttf",
-      weight: "300",
-      style: "normal",
-    },
-    {
-      path: "./fonts/AmazonEmber_Rg.ttf",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "./fonts/Amazon-Ember-Medium.ttf",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "./fonts/AmazonEmber_Bd.ttf",
-      weight: "700",
-      style: "normal",
-    },
-  ],
-  variable: "--font-amazon-ember",
-  display: "swap",
-  fallback: ["Arial", "Helvetica", "sans-serif"],
-});
 
 export const dynamic = 'force-dynamic';
 
@@ -104,7 +74,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn(amazonEmber.variable, "font-sans")}>
+    <html lang="en" className="font-sans">
       <body className="min-h-screen antialiased">
         <AuthProvider>
           <Navbar />
