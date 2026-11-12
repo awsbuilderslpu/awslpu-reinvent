@@ -55,14 +55,13 @@ export function Footer() {
           </p>
 
           <p>
-            © 2026 Re:Invent Fest. All rights reserved.
+            © 2026 AWS SBG LPU. All rights reserved.
           </p>
         </div>
 
         <p className="mt-5 max-w-3xl text-[11px] leading-5 text-white/30">
-          Re:Invent Fest is a community-organized event hosted by AWS Student
-          Builder Group at Lovely Professional University. It is not an official
-          AWS re:Invent event.
+          AWS re:Invent Watch & Build Party hosted by the AWS Student Builder Group at Lovely Professional University is an official community event recognized and listed on the AWS Builder network.
+  
         </p>
       </div>
     </footer>
