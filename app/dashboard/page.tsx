@@ -6,10 +6,8 @@ import { useRouter } from "next/navigation"
 import {
   ArrowUpRight,
   ArrowRight,
-  CalendarDays,
   Ticket as TicketIcon,
   UserRound,
-  Mail,
   MapPin,
   ShieldCheck,
   QrCode as QrIcon,
@@ -17,9 +15,7 @@ import {
   Copy,
   Check,
   AlertCircle,
-  ExternalLink,
   Clock,
-  Sparkles,
   Save,
   CheckCircle2
 } from "lucide-react"
@@ -41,15 +37,38 @@ export default function DashboardPage() {
   const [venues, setVenues] = useState<Venue[]>([])
   const [loadingVenues, setLoadingVenues] = useState(false)
 
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [phone, setPhone] = useState("")
-  const [institution, setInstitution] = useState("")
-  const [degree, setDegree] = useState("")
-  const [department, setDepartment] = useState("")
-  const [graduationYear, setGraduationYear] = useState("")
-  const [linkedin, setLinkedin] = useState("")
-  const [github, setGithub] = useState("")
+  const [profileOverrides, setProfileOverrides] = useState<Partial<{
+    firstName: string
+    lastName: string
+    phone: string
+    institution: string
+    degree: string
+    department: string
+    graduationYear: string
+    linkedin: string
+    github: string
+  }>>({})
+
+  const firstName = profileOverrides.firstName ?? user?.first_name ?? ""
+  const lastName = profileOverrides.lastName ?? user?.last_name ?? ""
+  const phone = profileOverrides.phone ?? user?.phone ?? ""
+  const institution = profileOverrides.institution ?? user?.academic?.institution ?? ""
+  const degree = profileOverrides.degree ?? user?.academic?.degree ?? ""
+  const department = profileOverrides.department ?? user?.academic?.department ?? ""
+  const graduationYear = profileOverrides.graduationYear ?? (user?.academic?.graduation_year ? String(user.academic.graduation_year) : "")
+  const linkedin = profileOverrides.linkedin ?? user?.socials?.linkedin ?? ""
+  const github = profileOverrides.github ?? user?.socials?.github ?? ""
+
+  const setFirstName = (v: string) => setProfileOverrides((p) => ({ ...p, firstName: v }))
+  const setLastName = (v: string) => setProfileOverrides((p) => ({ ...p, lastName: v }))
+  const setPhone = (v: string) => setProfileOverrides((p) => ({ ...p, phone: v }))
+  const setInstitution = (v: string) => setProfileOverrides((p) => ({ ...p, institution: v }))
+  const setDegree = (v: string) => setProfileOverrides((p) => ({ ...p, degree: v }))
+  const setDepartment = (v: string) => setProfileOverrides((p) => ({ ...p, department: v }))
+  const setGraduationYear = (v: string) => setProfileOverrides((p) => ({ ...p, graduationYear: v }))
+  const setLinkedin = (v: string) => setProfileOverrides((p) => ({ ...p, linkedin: v }))
+  const setGithub = (v: string) => setProfileOverrides((p) => ({ ...p, github: v }))
+
   const [savingProfile, setSavingProfile] = useState(false)
   const [profileSuccess, setProfileSuccess] = useState<string | null>(null)
   const [profileError, setProfileError] = useState<string | null>(null)
@@ -59,22 +78,6 @@ export default function DashboardPage() {
       router.replace("/auth?mode=login")
     }
   }, [loading, authenticated, router])
-
-  useEffect(() => {
-    if (user) {
-      setFirstName(user.first_name || "")
-      setLastName(user.last_name || "")
-      setPhone(user.phone || "")
-      setInstitution(user.academic?.institution || "")
-      setDegree(user.academic?.degree || "")
-      setDepartment(user.academic?.department || "")
-      setGraduationYear(
-        user.academic?.graduation_year ? String(user.academic.graduation_year) : ""
-      )
-      setLinkedin(user.socials?.linkedin || "")
-      setGithub(user.socials?.github || "")
-    }
-  }, [user])
 
   useEffect(() => {
     async function loadTickets() {
@@ -88,8 +91,8 @@ export default function DashboardPage() {
         } else {
           setTickets([])
         }
-      } catch (err) {
-        setTicketError("Failed to fetch tickets")
+      } catch {
+        setTicketError("Unable to synchronize with tickets service")
       } finally {
         setLoadingTickets(false)
       }
@@ -162,6 +165,7 @@ export default function DashboardPage() {
       }
 
       await refreshUser()
+      setProfileOverrides({})
       setProfileSuccess("Profile updated successfully")
     } catch (err) {
       setProfileError(err instanceof Error ? err.message : "Error saving profile")
@@ -172,16 +176,16 @@ export default function DashboardPage() {
 
   if (loading || !user) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#050505] text-white">
+      <div className="flex min-h-screen items-center justify-center bg-[#050505] text-white">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-[#FF2D87]" />
-      </main>
+      </div>
     )
   }
 
   const fullName = `${user.first_name} ${user.last_name}`
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white">
+    <div className="min-h-screen bg-[#050505] text-white">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(108,0,255,0.12),transparent_55%)]" />
 
       <section className="relative mx-auto max-w-[1500px] px-5 pb-24 pt-32 sm:px-10 sm:pt-40 lg:px-16">
@@ -203,7 +207,7 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full sm:w-auto">
             <div className="flex items-center gap-2 border border-emerald-400/20 bg-emerald-400/[0.06] px-4 py-2.5 text-xs text-emerald-400">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
               Verified Attendee
@@ -211,14 +215,14 @@ export default function DashboardPage() {
 
             <Link
               href="/tickets"
-              className="flex h-10 items-center justify-center border border-[#FF00D4] bg-[#FF00D4]/20 px-5 text-xs font-semibold uppercase tracking-[0.12em] text-white hover:bg-[#FF00D4]/30 transition-all shadow-[0_0_20px_rgba(255,0,212,0.2)]"
+              className="flex-1 sm:flex-none flex h-10 items-center justify-center border border-[#FF00D4] bg-[#FF00D4]/20 px-5 text-xs font-semibold uppercase tracking-[0.12em] text-white hover:bg-[#FF00D4]/30 transition-all shadow-[0_0_20px_rgba(255,0,212,0.2)]"
             >
               Get More Passes
             </Link>
           </div>
         </div>
 
-        <div className="mt-8 flex gap-2 border-b border-white/10 pb-4 overflow-x-auto scrollbar-none">
+        <div className="mt-8 flex gap-2 border-b border-white/10 pb-4 overflow-x-auto scrollbar-none touch-pan-x snap-x">
           <button
             type="button"
             onClick={() => setActiveTab("overview")}
@@ -477,6 +481,13 @@ export default function DashboardPage() {
               </span>
             </div>
 
+            {ticketError && (
+              <div className="mt-4 flex items-center gap-2 border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-300">
+                <AlertCircle className="h-4 w-4 shrink-0 text-rose-400" />
+                <p>{ticketError}</p>
+              </div>
+            )}
+
             {loadingTickets ? (
               <div className="flex flex-col items-center justify-center py-24 text-white/50">
                 <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-[#FF00D4]" />
@@ -487,7 +498,7 @@ export default function DashboardPage() {
                 <TicketIcon className="h-12 w-12 text-white/20" />
                 <h3 className="mt-4 text-lg font-medium text-white/80">No Tickets Issued Yet</h3>
                 <p className="mt-2 max-w-sm text-xs leading-relaxed text-white/50">
-                  You haven't purchased any festival passes yet. Reserve your pass now to secure entry to AWS Re:Invent Fest 2026.
+                  You haven&apos;t purchased any festival passes yet. Reserve your pass now to secure entry to AWS Re:Invent Fest 2026.
                 </p>
                 <Link
                   href="/tickets"
@@ -881,6 +892,6 @@ export default function DashboardPage() {
           </div>
         )}
       </section>
-    </main>
+    </div>
   )
 }

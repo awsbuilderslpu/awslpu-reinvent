@@ -26,7 +26,14 @@ export function ScrollReveal() {
         { threshold: 0.1 },
       );
 
-      elements.forEach((element) => revealObserver.observe(element));
+      elements.forEach((element) => {
+        const rect = element.getBoundingClientRect();
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+          element.classList.add("is-visible");
+        } else {
+          revealObserver.observe(element);
+        }
+      });
       observer = revealObserver;
     });
 

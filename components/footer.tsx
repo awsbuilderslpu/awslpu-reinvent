@@ -1,13 +1,20 @@
+"use client";
+
 import Link from "next/link";
+import { ArrowUp } from "lucide-react";
 
 const links = [
-  { label: "Overview", href: "#overview" },
-  { label: "About", href: "#about" },
-  { label: "Highlights", href: "#highlights" },
-  { label: "Partners", href: "#partners" },
+  { label: "Overview", href: "/#overview" },
+  { label: "About", href: "/#about" },
+  { label: "Highlights", href: "/#highlights" },
+  { label: "Partners", href: "/#partners" },
 ];
 
 export function Footer() {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <footer className="relative isolate overflow-hidden border-t border-white/10 bg-[#050505] px-6 pt-16 pb-8 text-white sm:px-10 sm:pt-20 lg:px-16">
       <div
@@ -19,8 +26,8 @@ export function Footer() {
         <div className="flex flex-col justify-between gap-12 pb-16 md:flex-row md:items-end">
           <div>
             <Link
-              href="#overview"
-              className="inline-block text-5xl font-light tracking-[-0.08em] sm:text-7xl"
+              href="/"
+              className="inline-block text-5xl font-light tracking-[-0.08em] sm:text-7xl transition-opacity hover:opacity-90"
             >
               re<span className="text-[#FF00D4]">:</span>Invent
               <span className="text-white/40">.</span>
@@ -54,14 +61,25 @@ export function Footer() {
             </span>
           </p>
 
-          <p>
-            © 2026 AWS SBG LPU. All rights reserved.
-          </p>
+          <div className="flex items-center gap-6">
+            <p>
+              © 2026 AWS SBG LPU. All rights reserved.
+            </p>
+
+            <button
+              type="button"
+              onClick={scrollToTop}
+              className="flex items-center gap-1.5 py-2 text-xs text-white/50 transition-colors hover:text-[#FF00D4] cursor-pointer"
+              aria-label="Scroll back to top"
+            >
+              <span>Back to Top</span>
+              <ArrowUp className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
 
         <p className="mt-5 max-w-3xl text-[11px] leading-5 text-white/30">
-          AWS re:Invent Watch & Build Party hosted by the AWS Student Builder Group at Lovely Professional University is an official community event recognized and listed on the AWS Builder network.
-  
+          AWS re:Invent Watch &amp; Build Party hosted by the AWS Student Builder Group at Lovely Professional University is an official community event recognized and listed on the AWS Builder network.
         </p>
       </div>
     </footer>

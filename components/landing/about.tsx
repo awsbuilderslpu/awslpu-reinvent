@@ -21,7 +21,7 @@ export function About() {
 
             <h2
               suppressHydrationWarning
-              className="reveal reveal-delay-1 text-[clamp(3.5rem,15vw,5.5rem)] font-light leading-[0.88] tracking-[-0.075em] sm:text-[clamp(4.5rem,9vw,8rem)]"
+              className="reveal reveal-delay-1 text-[clamp(2.8rem,14vw,5.5rem)] font-light leading-[0.88] tracking-[-0.075em] sm:text-[clamp(4.5rem,9vw,8rem)]"
             >
               Imagine.
               <br />

@@ -1,18 +1,13 @@
 "use client"
 
 import { useEffect, useState, useMemo } from "react"
-import Link from "next/link"
 import {
   Calendar,
   Clock,
   MapPin,
   Search,
-  Filter,
-  User,
-  ExternalLink,
   X,
   Users,
-  Sparkles,
   ArrowRight
 } from "lucide-react"
 import { LinkedinIcon, GithubIcon } from "@/components/icons"
@@ -32,7 +27,6 @@ export default function SchedulePage() {
   const [sessions, setSessions] = useState<PopulatedSession[]>([])
   const [speakers, setSpeakers] = useState<Speaker[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
   const [selectedDay, setSelectedDay] = useState<string>("")
   const [selectedTrack, setSelectedTrack] = useState<string>("all")
@@ -51,21 +45,31 @@ export default function SchedulePage() {
         const fetchedSpeakers: Speaker[] = Array.isArray(data.speakers) ? data.speakers : []
         setSessions(fetchedSessions)
         setSpeakers(fetchedSpeakers)
-
-        if (fetchedSessions.length > 0) {
-          const firstDate = fetchedSessions[0].start_at ? fetchedSessions[0].start_at.slice(0, 10) : ""
-          if (firstDate) {
-            setSelectedDay(firstDate)
-          }
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load schedule")
+      } catch {
+        setSessions([])
+        setSpeakers([])
       } finally {
         setLoading(false)
       }
     }
     loadData()
   }, [])
+
+  // Close modal on Escape key press
+  useEffect(() => {
+    if (!activeSession) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setActiveSession(null)
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    document.body.style.overflow = "hidden"
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+      document.body.style.overflow = ""
+    }
+  }, [activeSession])
 
   const availableDays = useMemo(() => {
     const dates = Array.from(
@@ -91,19 +95,21 @@ export default function SchedulePage() {
     })
   }, [sessions])
 
-  useEffect(() => {
-    if (availableDays.length > 0 && (!selectedDay || !availableDays.find((d) => d.id === selectedDay))) {
-      setSelectedDay(availableDays[0].id)
+  // Derive active day to avoid calling setState synchronously in an effect
+  const activeDayId = useMemo(() => {
+    if (selectedDay && availableDays.some((d) => d.id === selectedDay)) {
+      return selectedDay
     }
-  }, [availableDays, selectedDay])
+    return availableDays[0]?.id || ""
+  }, [selectedDay, availableDays])
 
   const filteredSessions = useMemo(() => {
     return sessions.filter((s) => {
       const sessionDate = s.start_at ? s.start_at.slice(0, 10) : ""
-      const matchesDay = !selectedDay || sessionDate === selectedDay
+      const matchesDay = !activeDayId || sessionDate === activeDayId
 
       const matchesTrack =
-        selectedTrack === "all" || s.session_type === selectedTrack
+        selectedTrack === "all" || s.session_type?.toLowerCase() === selectedTrack.toLowerCase()
 
       const q = searchQuery.toLowerCase().trim()
       const matchesSearch =
@@ -120,7 +126,7 @@ export default function SchedulePage() {
 
       return matchesDay && matchesTrack && matchesSearch
     })
-  }, [sessions, selectedDay, selectedTrack, searchQuery])
+  }, [sessions, activeDayId, selectedTrack, searchQuery])
 
   function formatTime(isoString: string) {
     try {
@@ -136,7 +142,7 @@ export default function SchedulePage() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#050505] text-white">
+    <div className="relative min-h-screen overflow-hidden bg-[#050505] text-white">
       <div className="pointer-events-none fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(108,0,255,0.14),transparent_55%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_85%_65%,rgba(255,0,212,0.08),transparent_50%)]" />
@@ -161,11 +167,11 @@ export default function SchedulePage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 sm:gap-3 w-full md:w-auto">
             <button
               type="button"
               onClick={() => setActiveTab("schedule")}
-              className={`h-11 px-6 text-xs font-semibold uppercase tracking-[0.14em] transition-all ${
+              className={`flex-1 sm:flex-none h-11 px-5 sm:px-6 text-xs font-semibold uppercase tracking-[0.14em] transition-all cursor-pointer ${
                 activeTab === "schedule"
                   ? "border border-[#FF00D4] bg-[#FF00D4]/15 text-white shadow-[0_0_20px_rgba(255,0,212,0.2)]"
                   : "border border-white/15 bg-white/[0.02] text-white/60 hover:text-white"
@@ -176,7 +182,7 @@ export default function SchedulePage() {
             <button
               type="button"
               onClick={() => setActiveTab("speakers")}
-              className={`h-11 px-6 text-xs font-semibold uppercase tracking-[0.14em] transition-all ${
+              className={`flex-1 sm:flex-none h-11 px-5 sm:px-6 text-xs font-semibold uppercase tracking-[0.14em] transition-all cursor-pointer ${
                 activeTab === "speakers"
                   ? "border border-[#FF00D4] bg-[#FF00D4]/15 text-white shadow-[0_0_20px_rgba(255,0,212,0.2)]"
                   : "border border-white/15 bg-white/[0.02] text-white/60 hover:text-white"
@@ -190,29 +196,32 @@ export default function SchedulePage() {
         {activeTab === "schedule" ? (
           <div className="mt-10">
             {availableDays.length > 0 && (
-              <div className="grid gap-2 sm:grid-cols-5">
-                {availableDays.map((d) => (
-                  <button
-                    key={d.id}
-                    type="button"
-                    onClick={() => setSelectedDay(d.id)}
-                    className={`flex flex-col justify-between border p-4 text-left transition-all duration-200 ${
-                      selectedDay === d.id
-                        ? "border-[#FF00D4] bg-[#FF00D4]/10 shadow-[0_0_25px_rgba(255,0,212,0.18)]"
-                        : "border-white/10 bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.04]"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-[#FF2D87]">
-                        {d.label}
-                      </span>
-                      <span className="text-xs text-white/50">{d.date}</span>
-                    </div>
-                    <p className="mt-3 text-xs font-medium line-clamp-1 text-white">
-                      {d.title}
-                    </p>
-                  </button>
-                ))}
+              <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-none touch-pan-x snap-x snap-mandatory sm:grid sm:grid-cols-5 sm:gap-2">
+                {availableDays.map((d) => {
+                  const isSelected = activeDayId === d.id
+                  return (
+                    <button
+                      key={d.id}
+                      type="button"
+                      onClick={() => setSelectedDay(d.id)}
+                      className={`shrink-0 snap-start min-w-[150px] sm:min-w-0 flex flex-col justify-between border p-4 text-left transition-all duration-200 cursor-pointer ${
+                        isSelected
+                          ? "border-[#FF00D4] bg-[#FF00D4]/10 shadow-[0_0_25px_rgba(255,0,212,0.18)] text-white"
+                          : "border-white/10 bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.04]"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-[#FF2D87]">
+                          {d.label}
+                        </span>
+                        <span className="text-xs text-white/50">{d.date}</span>
+                      </div>
+                      <p className="mt-3 text-xs font-medium line-clamp-1 text-white">
+                        {d.title}
+                      </p>
+                    </button>
+                  )
+                })}
               </div>
             )}
 
@@ -223,7 +232,7 @@ export default function SchedulePage() {
                     key={tf.id}
                     type="button"
                     onClick={() => setSelectedTrack(tf.id)}
-                    className={`px-3.5 py-1.5 text-[11px] uppercase tracking-wider transition-all ${
+                    className={`px-3.5 py-1.5 text-[11px] uppercase tracking-wider transition-all cursor-pointer ${
                       selectedTrack === tf.id
                         ? "border border-[#8B5CFF] bg-[#8B5CFF]/20 text-[#B69AFF]"
                         : "border border-white/10 text-white/50 hover:border-white/25 hover:text-white"
@@ -235,14 +244,24 @@ export default function SchedulePage() {
               </div>
 
               <div className="relative w-full max-w-xs">
-                <Search className="absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/40" />
+                <Search className="pointer-events-none absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/40" />
                 <input
                   type="text"
                   placeholder="Search topic or speaker..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-10 w-full border border-white/15 bg-white/[0.03] pl-9 pr-4 text-xs text-white placeholder-white/35 focus:border-[#FF00D4] focus:outline-none"
+                  className="h-10 w-full border border-white/15 bg-white/[0.03] pl-9 pr-9 text-base sm:text-xs text-white placeholder-white/35 transition-colors focus:border-[#FF00D4] focus:outline-none"
                 />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-white/40 hover:text-white cursor-pointer"
+                    aria-label="Clear search"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
               </div>
             </div>
 
@@ -270,7 +289,7 @@ export default function SchedulePage() {
                     setSelectedTrack("all")
                     setSearchQuery("")
                   }}
-                  className="mt-6 border border-white/20 px-5 py-2 text-xs uppercase tracking-wider hover:border-[#FF00D4]"
+                  className="mt-6 border border-white/20 px-5 py-2 text-xs uppercase tracking-wider text-white hover:border-[#FF00D4] transition-colors cursor-pointer"
                 >
                   Reset Filters
                 </button>
@@ -281,7 +300,7 @@ export default function SchedulePage() {
                   <article
                     key={session.id}
                     onClick={() => setActiveSession(session)}
-                    className="group relative cursor-pointer border border-white/10 bg-white/[0.02] p-6 transition-all duration-200 hover:border-[#FF00D4]/70 hover:bg-white/[0.035] hover:shadow-[0_0_30px_rgba(255,0,212,0.08)] sm:p-8"
+                    className="group relative cursor-pointer border border-white/10 bg-white/[0.02] p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#FF00D4]/70 hover:bg-white/[0.035] hover:shadow-[0_0_30px_rgba(255,0,212,0.08)] sm:p-8"
                   >
                     <div className="grid gap-6 md:grid-cols-[180px_1fr_auto] md:items-center">
                       <div>
@@ -341,14 +360,16 @@ export default function SchedulePage() {
                           <div key={spk.id} className="flex items-center gap-3">
                             <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full border border-white/15 bg-white/10">
                               {spk.profile_picture ? (
+                                /* eslint-disable-next-line @next/next/no-img-element */
                                 <img
                                   src={spk.profile_picture}
                                   alt={spk.full_name}
-                                  className="h-full w-full object-cover grayscale contrast-125 group-hover:grayscale-0"
+                                  loading="lazy"
+                                  className="h-full w-full object-cover grayscale contrast-125 group-hover:grayscale-0 transition-all duration-300"
                                 />
                               ) : (
-                                <div className="flex h-full w-full items-center justify-center bg-white/5 text-white/40">
-                                  <User className="h-5 w-5" />
+                                <div className="flex h-full w-full items-center justify-center bg-white/5 text-white/40 text-xs font-semibold">
+                                  {spk.full_name.charAt(0)}
                                 </div>
                               )}
                             </div>
@@ -389,19 +410,23 @@ export default function SchedulePage() {
                 {speakers.map((spk) => (
                   <div
                     key={spk.id}
-                    className="group relative flex flex-col justify-between border border-white/10 bg-white/[0.02] p-7 transition-all duration-300 hover:border-[#FF00D4]/70 hover:shadow-[0_0_35px_rgba(255,0,212,0.1)]"
+                    className="group relative flex flex-col justify-between border border-white/10 bg-white/[0.02] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-[#FF00D4]/70 hover:shadow-[0_0_35px_rgba(255,0,212,0.12)]"
                   >
                     <div>
                       <div className="relative aspect-square w-full overflow-hidden rounded-md border border-white/10 bg-white/[0.04]">
                         {spk.profile_picture ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
                           <img
                             src={spk.profile_picture}
                             alt={spk.full_name}
+                            loading="lazy"
                             className="h-full w-full object-cover grayscale contrast-125 transition-all duration-500 group-hover:grayscale-0 group-hover:scale-105"
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center text-white/30">
-                            <User className="h-16 w-16" />
+                            <span className="text-4xl font-light text-white/40">
+                              {spk.full_name.charAt(0)}
+                            </span>
                           </div>
                         )}
                         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
@@ -469,7 +494,7 @@ export default function SchedulePage() {
 
         {activeSession && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md transition-opacity"
             onClick={() => setActiveSession(null)}
           >
             <div
@@ -479,7 +504,8 @@ export default function SchedulePage() {
               <button
                 type="button"
                 onClick={() => setActiveSession(null)}
-                className="absolute right-4 top-4 p-2 text-white/50 hover:text-white"
+                className="absolute right-4 top-4 p-2 text-white/50 hover:text-white transition-colors cursor-pointer"
+                aria-label="Close session details"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -520,10 +546,11 @@ export default function SchedulePage() {
                       <div key={spk.id} className="flex items-center gap-3">
                         <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border border-white/15 bg-white/10">
                           {spk.profile_picture ? (
-                            <img src={spk.profile_picture} alt={spk.full_name} className="h-full w-full object-cover" />
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img src={spk.profile_picture} alt={spk.full_name} loading="lazy" className="h-full w-full object-cover" />
                           ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-white/5 text-white/40">
-                              <User className="h-4 w-4" />
+                            <div className="flex h-full w-full items-center justify-center bg-white/5 text-white/40 text-xs font-semibold">
+                              {spk.full_name.charAt(0)}
                             </div>
                           )}
                         </div>
@@ -541,7 +568,7 @@ export default function SchedulePage() {
                 <button
                   type="button"
                   onClick={() => setActiveSession(null)}
-                  className="border border-white/20 px-6 py-2 text-xs uppercase tracking-wider text-white hover:border-white transition-all"
+                  className="border border-white/20 px-6 py-2 text-xs uppercase tracking-wider text-white hover:border-white transition-all cursor-pointer"
                 >
                   Close
                 </button>
@@ -550,6 +577,6 @@ export default function SchedulePage() {
           </div>
         )}
       </div>
-    </main>
+    </div>
   )
 }

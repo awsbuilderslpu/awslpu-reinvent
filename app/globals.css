@@ -57,6 +57,67 @@ body {
   font-family: "Amazon Ember", Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Custom modern dark scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 0, 212, 0.5);
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar,
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* iOS input auto-zoom prevention and touch optimizations */
+@supports (-webkit-touch-callout: none) {
+  input, select, textarea {
+    font-size: 16px;
+  }
+}
+
+/* Focus visibility for accessibility */
+:focus-visible {
+  outline: 2px solid #FF00D4;
+  outline-offset: 2px;
+}
+
+/* Glass panel & ambient glow utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ambient-glow-pink {
+  box-shadow: 0 0 40px -10px rgba(255, 0, 212, 0.25);
+}
+
+.ambient-glow-purple {
+  box-shadow: 0 0 40px -10px rgba(108, 0, 255, 0.25);
 }
 
 ::selection {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react"
 import Link from "next/link"
-import { ArrowUpRight, Calendar, Clock, MapPin } from "lucide-react"
+import { ArrowUpRight, Clock, MapPin } from "lucide-react"
 import type { PopulatedSession } from "@/types/schedule"
 
 export function ScheduleTeaser() {
@@ -120,31 +120,31 @@ export function ScheduleTeaser() {
         ) : (
           <div className="mt-10">
             {uniqueDates.length > 1 && (
-              <div className="mb-6 flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+              <div className="mb-6 flex gap-2.5 overflow-x-auto pb-2 scrollbar-none touch-pan-x snap-x snap-mandatory">
                 {uniqueDates.map((dateStr, idx) => (
                   <button
                     key={dateStr}
                     type="button"
                     onClick={() => setActiveDate(dateStr)}
-                    className={`shrink-0 border px-5 py-3 text-left transition-all ${
+                    className={`shrink-0 snap-start min-w-[130px] sm:min-w-[150px] border px-4 py-3 sm:px-5 sm:py-3.5 text-left transition-all duration-200 cursor-pointer ${
                       activeDate === dateStr
-                        ? "border-[#FF00D4] bg-[#FF00D4]/10 shadow-[0_0_20px_rgba(255,0,212,0.15)] text-white"
+                        ? "border-[#FF00D4] bg-[#FF00D4]/15 shadow-[0_0_20px_rgba(255,0,212,0.2)] text-white"
                         : "border-white/10 bg-white/[0.02] text-white/50 hover:border-white/30 hover:text-white"
                     }`}
                   >
-                    <p className="text-[10px] uppercase tracking-wider">Day 0{idx + 1}</p>
-                    <p className="text-sm font-semibold">{formatDate(dateStr)}</p>
+                    <p className="text-[10px] uppercase tracking-wider text-[#FF2D87]">Day 0{idx + 1}</p>
+                    <p className="text-sm font-semibold text-white">{formatDate(dateStr)}</p>
                   </button>
                 ))}
               </div>
             )}
 
-            <div className="border border-white/10 bg-white/[0.015] p-6 sm:p-10">
+            <div className="border border-white/10 bg-white/[0.015] p-5 sm:p-8 lg:p-10">
               <div className="grid gap-5 md:grid-cols-2">
                 {activeSessions.map((ses) => (
                   <div
                     key={ses.id}
-                    className="group relative flex flex-col justify-between border border-white/10 bg-black/40 p-6 transition-all hover:border-[#FF00D4]/60 hover:bg-white/[0.02]"
+                    className="group relative flex flex-col justify-between border border-white/10 bg-black/40 p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#FF00D4]/70 hover:bg-white/[0.03] hover:shadow-[0_0_30px_rgba(255,0,212,0.12)]"
                   >
                     <div>
                       <div className="mb-4 flex items-center justify-between">

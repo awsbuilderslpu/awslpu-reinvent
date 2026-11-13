@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
@@ -8,21 +8,15 @@ import {
   ShieldCheck,
   AlertCircle,
   ArrowRight,
-  Sparkles,
-  Ticket as TicketIcon,
   Clock,
-  ArrowUpRight,
   Lock,
   Loader2,
-  Info
+  Info,
+  Ticket as TicketIcon
 } from "lucide-react"
 import { useAuth } from "@/providers/auth-provider"
 import { openRazorpayCheckout } from "@/lib/razorpay"
 import type { TicketCategory, Order, Ticket } from "@/types/ticketing"
-
-interface CartSelection {
-  [categoryId: string]: number
-}
 
 const tierPerks: Record<string, string[]> = {
   "student pass (early bird)": [
@@ -52,12 +46,11 @@ const tierPerks: Record<string, string[]> = {
 
 export default function TicketsPage() {
   const router = useRouter()
-  const { user, authenticated, loading: authLoading } = useAuth()
+  const { user, authenticated } = useAuth()
 
   const [categories, setCategories] = useState<TicketCategory[]>([])
   const [loadingCategories, setLoadingCategories] = useState(true)
   const [existingTicket, setExistingTicket] = useState<Ticket | null>(null)
-  const [checkingExisting, setCheckingExisting] = useState(false)
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
   const [checkoutStep, setCheckoutStep] = useState<"select" | "review" | "processing" | "success">("select")
@@ -70,11 +63,14 @@ export default function TicketsPage() {
       try {
         setLoadingCategories(true)
         const res = await fetch("/api/tickets/categories")
-        if (!res.ok) throw new Error("Failed to load ticket categories")
+        if (!res.ok) {
+          throw new Error("Failed to load ticket categories")
+        }
         const data = await res.json()
-        setCategories(data || [])
+        setCategories(Array.isArray(data) ? data : [])
       } catch (err) {
         setOrderError(err instanceof Error ? err.message : "Error loading passes")
+        setCategories([])
       } finally {
         setLoadingCategories(false)
       }
@@ -89,7 +85,6 @@ export default function TicketsPage() {
         return
       }
       try {
-        setCheckingExisting(true)
         const res = await fetch("/api/tickets")
         if (res.ok) {
           const data = await res.json()
@@ -101,8 +96,6 @@ export default function TicketsPage() {
         }
       } catch {
         setExistingTicket(null)
-      } finally {
-        setCheckingExisting(false)
       }
     }
     checkUserTickets()
@@ -113,7 +106,10 @@ export default function TicketsPage() {
     setSelectedCategoryId((prev) => (prev === categoryId ? null : categoryId))
   }
 
-  const selectedCategory = categories.find((c) => c.id === selectedCategoryId)
+  const selectedCategory = useMemo(() => {
+    return categories.find((c) => c.id === selectedCategoryId) || null
+  }, [categories, selectedCategoryId])
+
   const unitPrice = selectedCategory ? selectedCategory.price_in_paise / 100 : 0
   const totalAmount = unitPrice
 
@@ -236,13 +232,13 @@ export default function TicketsPage() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#050505] text-white">
+    <div className="relative min-h-screen overflow-hidden bg-[#050505] text-white">
       <div className="pointer-events-none fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(108,0,255,0.14),transparent_55%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_85%_65%,rgba(255,0,212,0.08),transparent_50%)]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1600px] px-5 pb-24 pt-32 sm:px-10 sm:pt-40 lg:px-16">
+      <div className="relative z-10 mx-auto max-w-[1600px] px-5 pb-28 pt-28 sm:px-10 sm:pt-36 lg:px-16">
         <div className="flex flex-col justify-between gap-6 border-b border-white/10 pb-10 md:flex-row md:items-end">
           <div>
             <div className="mb-4 flex items-center gap-3">
@@ -277,7 +273,7 @@ export default function TicketsPage() {
         </div>
 
         {existingTicket && (
-          <div className="mt-8 flex flex-col gap-4 border border-[#FF00D4]/60 bg-linear-to-r from-[#FF00D4]/15 to-[#8B5CFF]/15 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-8 flex flex-col gap-4 border border-[#FF00D4]/60 bg-linear-to-r from-[#FF00D4]/15 to-[#8B5CFF]/15 p-6 sm:flex-row sm:items-center sm:justify-between shadow-[0_0_30px_rgba(255,0,212,0.15)]">
             <div className="flex items-center gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-emerald-400 bg-emerald-400/10 text-emerald-400">
                 <Check className="h-6 w-6" />
@@ -287,7 +283,7 @@ export default function TicketsPage() {
                   Active Ticket Already Issued
                 </p>
                 <h3 className="mt-1 text-lg font-light text-white">
-                  You already hold a <span className="font-semibold">{existingTicket.category_name}</span>
+                  You already hold a <span className="font-semibold text-white">{existingTicket.category_name}</span>
                 </h3>
                 <p className="text-xs text-white/55">
                   Each registered attendee is limited to 1 pass. Your QR entry code is ready in your dashboard.
@@ -297,7 +293,7 @@ export default function TicketsPage() {
 
             <Link
               href="/dashboard"
-              className="flex h-11 shrink-0 items-center justify-center gap-2 bg-linear-to-r from-[#FF00D4] to-[#702cff] px-6 text-xs font-semibold uppercase tracking-wider text-white shadow-[0_0_20px_rgba(255,0,212,0.3)]"
+              className="flex h-11 shrink-0 items-center justify-center gap-2 bg-linear-to-r from-[#FF00D4] to-[#702cff] px-6 text-xs font-semibold uppercase tracking-wider text-white shadow-[0_0_20px_rgba(255,0,212,0.3)] transition-all hover:opacity-95"
             >
               <span>View Pass in Dashboard</span>
               <ArrowRight className="h-4 w-4" />
@@ -306,18 +302,31 @@ export default function TicketsPage() {
         )}
 
         {orderError && (
-          <div className="mt-8 flex items-center gap-3 border border-red-500/40 bg-red-500/10 p-4 text-xs text-red-300">
-            <AlertCircle className="h-5 w-5 shrink-0 text-red-400" />
-            <p>{orderError}</p>
+          <div className="mt-8 flex items-center justify-between border border-rose-500/40 bg-rose-500/10 p-4 text-xs text-rose-300">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="h-5 w-5 shrink-0 text-rose-400" />
+              <p>{orderError}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setOrderError(null)}
+              className="ml-4 text-xs text-rose-400 hover:text-white"
+            >
+              Dismiss
+            </button>
           </div>
         )}
 
         {checkoutStep === "select" && (
           <div className="mt-12">
             {loadingCategories ? (
-              <div className="flex flex-col items-center justify-center py-24 text-white/50">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-[#FF00D4]" />
-                <p className="mt-4 text-xs uppercase tracking-widest">Loading available passes...</p>
+              <div className="grid gap-8 lg:grid-cols-3">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-96 animate-pulse border border-white/5 bg-white/[0.02]"
+                  />
+                ))}
               </div>
             ) : categories.length === 0 ? (
               <div className="flex flex-col items-center justify-center border border-white/10 bg-white/[0.01] py-20 text-center">
@@ -346,16 +355,17 @@ export default function TicketsPage() {
                   return (
                     <div
                       key={cat.id}
-                      className={`relative flex flex-col justify-between border p-8 transition-all duration-300 ${
+                      onClick={() => !existingTicket && !isSoldOut && toggleSelectCategory(cat.id)}
+                      className={`relative flex flex-col justify-between border p-8 transition-all duration-300 cursor-pointer ${
                         isSelected
-                          ? "border-[#FF00D4] bg-linear-to-b from-[#FF00D4]/20 via-[#FF00D4]/5 to-transparent shadow-[0_0_45px_rgba(255,0,212,0.25)]"
+                          ? "border-[#FF00D4] bg-linear-to-b from-[#FF00D4]/20 via-[#FF00D4]/5 to-transparent shadow-[0_0_45px_rgba(255,0,212,0.25)] -translate-y-1"
                           : isHighlight
-                          ? "border-[#FF00D4]/60 bg-linear-to-b from-[#FF00D4]/10 via-white/[0.02] to-transparent shadow-[0_0_30px_rgba(255,0,212,0.1)]"
-                          : "border-white/10 bg-white/[0.02] hover:border-white/30"
+                          ? "border-[#FF00D4]/60 bg-linear-to-b from-[#FF00D4]/10 via-white/[0.02] to-transparent shadow-[0_0_30px_rgba(255,0,212,0.1)] hover:-translate-y-1 hover:border-[#FF00D4]"
+                          : "border-white/10 bg-white/[0.02] hover:-translate-y-1 hover:border-white/30"
                       }`}
                     >
                       {isHighlight && (
-                        <span className="absolute right-6 top-6 bg-[#FF00D4] px-3 py-1 text-[9px] font-semibold uppercase tracking-wider text-white">
+                        <span className="absolute right-6 top-6 bg-[#FF00D4] px-3 py-1 text-[9px] font-semibold uppercase tracking-wider text-white shadow-[0_0_15px_#FF00D4]">
                           Recommended
                         </span>
                       )}
@@ -410,8 +420,11 @@ export default function TicketsPage() {
                         ) : (
                           <button
                             type="button"
-                            onClick={() => toggleSelectCategory(cat.id)}
-                            className={`flex h-12 w-full items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] transition-all duration-200 ${
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              toggleSelectCategory(cat.id)
+                            }}
+                            className={`flex h-12 w-full items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] transition-all duration-200 cursor-pointer ${
                               isSelected
                                 ? "bg-[#FF00D4] text-white shadow-[0_0_24px_rgba(255,0,212,0.4)]"
                                 : "border border-white/25 text-white hover:border-[#FF00D4] hover:bg-white/[0.04]"
@@ -437,11 +450,11 @@ export default function TicketsPage() {
             {selectedCategory && !existingTicket && (
               <aside
                 aria-label="Checkout action bar"
-                className="fixed bottom-6 inset-x-5 z-40 mx-auto max-w-3xl border border-[#FF00D4] bg-[#0c0816]/95 p-5 shadow-[0_0_50px_rgba(255,0,212,0.3)] backdrop-blur-xl sm:px-8"
+                className="fixed bottom-4 sm:bottom-6 inset-x-4 sm:inset-x-5 z-40 mx-auto max-w-3xl border border-[#FF00D4] bg-[#0c0816]/95 p-4 sm:p-5 shadow-[0_0_50px_rgba(255,0,212,0.35)] backdrop-blur-xl sm:px-8 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] sm:pb-5"
               >
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <p className="text-xs uppercase tracking-wider text-[#FF2D87]">
+                    <p className="text-[11px] uppercase tracking-wider text-[#FF2D87]">
                       1 Pass Selected: {selectedCategory.name}
                     </p>
                     <p className="text-2xl font-light text-white sm:text-3xl">
@@ -453,7 +466,7 @@ export default function TicketsPage() {
                   <button
                     type="button"
                     onClick={handleStartCheckout}
-                    className="flex h-12 items-center justify-center gap-3 bg-linear-to-r from-[#FF00D4] to-[#702cff] px-8 text-xs font-semibold uppercase tracking-[0.15em] text-white transition-all hover:opacity-95"
+                    className="flex h-12 w-full sm:w-auto items-center justify-center gap-3 bg-linear-to-r from-[#FF00D4] to-[#702cff] px-8 text-xs font-semibold uppercase tracking-[0.15em] text-white transition-all hover:opacity-95 shadow-[0_0_20px_rgba(255,0,212,0.3)] cursor-pointer"
                   >
                     <span>Proceed to Checkout</span>
                     <ArrowRight className="h-4 w-4" />
@@ -478,7 +491,7 @@ export default function TicketsPage() {
               <button
                 type="button"
                 onClick={() => setCheckoutStep("select")}
-                className="text-xs uppercase text-white/50 hover:text-white"
+                className="text-xs uppercase text-white/50 hover:text-white transition-colors cursor-pointer"
               >
                 ← Change Pass
               </button>
@@ -541,7 +554,7 @@ export default function TicketsPage() {
               <button
                 type="button"
                 onClick={handleProceedPayment}
-                className="flex h-14 w-full items-center justify-center gap-3 bg-linear-to-r from-[#FF00D4] to-[#702cff] text-xs font-semibold uppercase tracking-[0.18em] text-white shadow-[0_0_30px_rgba(255,0,212,0.3)] transition-all hover:opacity-95"
+                className="flex h-14 w-full items-center justify-center gap-3 bg-linear-to-r from-[#FF00D4] to-[#702cff] text-xs font-semibold uppercase tracking-[0.18em] text-white shadow-[0_0_30px_rgba(255,0,212,0.3)] transition-all hover:opacity-95 cursor-pointer"
               >
                 <Lock className="h-4 w-4" />
                 <span>Pay ₹{totalAmount.toLocaleString("en-IN")} via Razorpay</span>
@@ -619,6 +632,6 @@ export default function TicketsPage() {
           </div>
         )}
       </div>
-    </main>
+    </div>
   )
 }

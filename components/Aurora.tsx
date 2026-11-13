@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, type CSSProperties } from 'react';
+import { useEffect, useMemo, useRef, type CSSProperties } from 'react';
 
 export interface AuroraProps {
   colorStops?: string[];
@@ -285,7 +285,7 @@ const Aurora = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wakeRef = useRef<(() => void) | null>(null);
   const stops = (Array.isArray(colorStops) ? colorStops : []).filter(Boolean).map(String).slice(0, MAX_STOPS);
-  const settings: Settings = {
+  const settings: Settings = useMemo(() => ({
     stops: stops.length >= 2 ? stops : stops.length === 1 ? [stops[0], stops[0]] : ['#5227FF', '#7cff67'],
     amplitude: Math.max(0, amplitude),
     blend: clamp(blend, 0, 1),
@@ -303,9 +303,11 @@ const Aurora = ({
     lightMode,
     paused,
     dpr
-  };
+  }), [stops, amplitude, blend, speed, time, height, scale, glow, brightness, layers, direction, mouseInteraction, intro, opacity, lightMode, paused, dpr]);
   const settingsRef = useRef(settings);
-  settingsRef.current = settings;
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
 
   useEffect(() => {
     const container = containerRef.current;

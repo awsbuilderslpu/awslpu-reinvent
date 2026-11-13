@@ -74,11 +74,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="font-sans">
+    <html lang="en" className="font-sans" data-scroll-behavior="smooth">
       <body className="min-h-screen antialiased">
         <AuthProvider>
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-[#FF00D4] focus:text-black focus:px-4 focus:py-2 focus:text-xs focus:font-bold uppercase tracking-wider shadow-lg"
+          >
+            Skip to content
+          </a>
           <Navbar />
-          <main>{children}</main>
+          <div id="main-content" className="flex min-h-screen flex-col">
+            {children}
+          </div>
           <Footer />
           <ScrollReveal />
         </AuthProvider>

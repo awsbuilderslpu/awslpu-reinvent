@@ -10,8 +10,6 @@ import {
   Copy,
   Download,
   MapPin,
-  ShieldCheck,
-  Sparkles,
   Ticket as TicketIcon
 } from "lucide-react"
 import { useAuth } from "@/providers/auth-provider"
@@ -68,15 +66,15 @@ export default function TicketDetailPage({
 
   if (loading || authLoading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#050505] text-white">
+      <div className="flex min-h-screen items-center justify-center bg-[#050505] text-white">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-[#FF00D4]" />
-      </main>
+      </div>
     )
   }
 
   if (error || !ticket) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center bg-[#050505] px-6 text-center text-white">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#050505] px-6 text-center text-white">
         <TicketIcon className="h-12 w-12 text-white/20" />
         <h2 className="mt-4 text-2xl font-light">Ticket Not Found</h2>
         <p className="mt-2 text-xs text-white/50">{error || "The requested ticket is invalid or inaccessible."}</p>
@@ -87,14 +85,14 @@ export default function TicketDetailPage({
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Dashboard</span>
         </Link>
-      </main>
+      </div>
     )
   }
 
   const attendeeName = user ? `${user.first_name} ${user.last_name}` : "Festival Attendee"
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#050505] px-5 pb-20 pt-32 text-white sm:px-10 sm:pt-40">
+    <div className="relative min-h-screen overflow-hidden bg-[#050505] px-5 pb-20 pt-28 text-white sm:px-10 sm:pt-40">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(108,0,255,0.18),transparent_55%)]" />
 
       <div className="relative mx-auto max-w-xl">
@@ -106,7 +104,7 @@ export default function TicketDetailPage({
           <span>Back to My Tickets</span>
         </Link>
 
-        <div className="relative overflow-hidden border border-[#FF00D4] bg-linear-to-b from-[#130d22] via-[#090611] to-[#050505] p-8 shadow-[0_0_60px_rgba(255,0,212,0.25)] sm:p-12">
+        <div className="relative overflow-hidden border border-[#FF00D4] bg-linear-to-b from-[#130d22] via-[#090611] to-[#050505] p-6 sm:p-12 shadow-[0_0_60px_rgba(255,0,212,0.25)]">
           <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#FF00D4]/15 blur-[80px]" />
 
           <div className="flex items-center justify-between border-b border-white/10 pb-6">
@@ -136,8 +134,10 @@ export default function TicketDetailPage({
             </p>
           </div>
 
-          <div className="my-10 flex justify-center">
-            <QrCode value={ticket.ticket_code} size={240} />
+          <div className="my-8 flex justify-center">
+            <div className="max-w-[220px] sm:max-w-none">
+              <QrCode value={ticket.ticket_code} size={220} />
+            </div>
           </div>
 
           <div className="space-y-3 border-y border-white/10 py-6 text-xs text-white/60">
@@ -161,17 +161,17 @@ export default function TicketDetailPage({
             </div>
             <div className="flex justify-between items-center">
               <span className="text-white/40">Ticket Code</span>
-              <span className="font-mono text-[10px] text-[#FF00D4] break-all max-w-[220px]">
+              <span className="font-mono text-[10px] text-[#FF00D4] break-all max-w-[200px] sm:max-w-[240px]">
                 {ticket.ticket_code}
               </span>
             </div>
           </div>
 
-          <div className="mt-8 flex gap-3">
+          <div className="mt-8 flex flex-col sm:flex-row gap-3">
             <button
               type="button"
               onClick={copyCode}
-              className="flex-1 flex h-11 items-center justify-center gap-2 border border-white/20 text-xs uppercase tracking-wider text-white hover:border-white transition-all"
+              className="flex-1 flex h-11 items-center justify-center gap-2 border border-white/20 text-xs uppercase tracking-wider text-white hover:border-white transition-all cursor-pointer"
             >
               {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
               <span>{copied ? "Code Copied" : "Copy Code"}</span>
@@ -179,7 +179,7 @@ export default function TicketDetailPage({
             <button
               type="button"
               onClick={() => window.print()}
-              className="flex h-11 items-center justify-center gap-2 border border-[#FF00D4] bg-[#FF00D4]/20 px-6 text-xs uppercase tracking-wider text-white hover:bg-[#FF00D4]/30 transition-all shadow-[0_0_20px_rgba(255,0,212,0.2)]"
+              className="flex h-11 items-center justify-center gap-2 border border-[#FF00D4] bg-[#FF00D4]/20 px-6 text-xs uppercase tracking-wider text-white hover:bg-[#FF00D4]/30 transition-all shadow-[0_0_20px_rgba(255,0,212,0.2)] cursor-pointer"
             >
               <Download className="h-4 w-4" />
               <span>Print Pass</span>
@@ -187,6 +187,6 @@ export default function TicketDetailPage({
           </div>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

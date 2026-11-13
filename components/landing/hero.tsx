@@ -33,16 +33,19 @@ export function Hero() {
           <p
             data-reveal
             suppressHydrationWarning
-            className="reveal mb-5 text-sm font-medium text-white/85 sm:text-base"
+            className="reveal mb-5 flex items-center gap-2.5 text-sm font-medium text-white/85 sm:text-base"
           >
-            AWS Student Builder Group{" "}
-            <span className="text-[#FF00D4]">·</span> LPU
+            <span className="inline-block h-2 w-2 rounded-full bg-[#FF00D4] shadow-[0_0_10px_#FF00D4] animate-pulse" />
+            <span>
+              AWS Student Builder Group{" "}
+              <span className="text-[#FF00D4]">·</span> LPU
+            </span>
           </p>
 
           <h1
             data-reveal
             suppressHydrationWarning
-            className="reveal reveal-delay-1 text-[clamp(4rem,17vw,7rem)] font-light leading-[0.82] tracking-[-0.085em] sm:text-[clamp(5rem,13vw,12rem)] sm:leading-[0.76]"
+            className="reveal reveal-delay-1 text-[clamp(3.8rem,16vw,7rem)] font-light leading-[0.84] tracking-[-0.085em] sm:text-[clamp(5rem,13vw,12rem)] sm:leading-[0.76]"
           >
             re<span className="text-[#FF2D87]">:</span>
             <br />
@@ -55,7 +58,7 @@ export function Hero() {
             className="reveal reveal-delay-2 mt-7 max-w-xl sm:mt-9"
           >
             <p className="max-w-lg text-sm font-light leading-6 text-white/90 sm:text-base sm:leading-8">
-              Five days of technology, ideas, and building what's next. Join
+              Five days of technology, ideas, and building what&apos;s next. Join
               developers, students, and innovators at Lovely Professional
               University.
             </p>
@@ -72,7 +75,7 @@ export function Hero() {
           >
             <Link
               href="/tickets"
-              className="group inline-flex min-h-12 items-center gap-6 border border-[#FF00D4]/70 bg-linear-to-r from-[#FF00D4]/20 via-[#C000FF]/15 to-[#6C00FF]/20 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-white backdrop-blur-sm transition-colors duration-300 hover:border-[#FF2D87] hover:from-[#FF00D4]/35 hover:via-[#C000FF]/25 hover:to-[#6C00FF]/35 sm:min-h-14 sm:gap-8 sm:px-6 sm:py-4"
+              className="group inline-flex min-h-12 w-full sm:w-auto items-center justify-center gap-6 border border-[#FF00D4]/70 bg-linear-to-r from-[#FF00D4]/20 via-[#C000FF]/15 to-[#6C00FF]/20 px-6 py-3.5 text-xs font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-[#FF2D87] hover:from-[#FF00D4]/35 hover:via-[#C000FF]/25 hover:to-[#6C00FF]/35 hover:shadow-[0_0_28px_rgba(255,0,212,0.35)] active:translate-y-0 active:scale-[0.99] sm:min-h-14 sm:gap-8 sm:px-8 sm:py-4"
             >
               Explore the festival
               <span className="text-base text-[#FF2D87] transition-transform duration-300 group-hover:translate-x-1">

@@ -88,7 +88,7 @@ export default function ExperiencePage() {
   }, []);
 
   return (
-    <main className="relative isolate min-h-screen overflow-clip bg-[#050505] text-white">
+    <div className="relative isolate min-h-screen overflow-clip bg-[#050505] text-white">
       <div
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
@@ -134,7 +134,7 @@ export default function ExperiencePage() {
             THE EXPERIENCE
           </p>
 
-          <h1 className="text-[clamp(4rem,12vw,11rem)] font-extrabold leading-[0.78] tracking-[-0.09em]">
+          <h1 className="text-[clamp(3.2rem,12vw,11rem)] font-extrabold leading-[0.78] tracking-[-0.09em]">
             NOT JUST
             <br />A <span className="text-[#FF00D4]">WATCH</span>
             <br />
@@ -343,7 +343,7 @@ export default function ExperiencePage() {
 
           <Link
             href="/schedule"
-            className="group mt-10 inline-flex items-center gap-4 bg-[#FF00D4] px-7 py-4 text-sm font-semibold text-black transition-colors hover:bg-[#FF2D87]"
+            className="group mt-10 inline-flex items-center gap-4 bg-[#FF00D4] px-7 py-4 text-xs sm:text-sm font-bold uppercase tracking-[0.12em] text-black transition-all hover:bg-[#FF2D87] hover:shadow-[0_0_30px_rgba(255,0,212,0.4)] active:scale-[0.99]"
           >
             EXPLORE THE SCHEDULE
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -352,6 +352,6 @@ export default function ExperiencePage() {
       </section>
 
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-20 h-16 bg-gradient-to-t from-[#050505]/40 to-transparent" />
-    </main>
+    </div>
   );
 }

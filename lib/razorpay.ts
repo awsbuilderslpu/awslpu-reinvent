@@ -103,7 +103,7 @@ export async function openRazorpayCheckout(
       }
     })
 
-    rzp.on("payment.failed", (response: unknown) => {
+    rzp.on("payment.failed", () => {
       resolved = true
       reject(new Error("Payment failed or was rejected by bank"))
     })
