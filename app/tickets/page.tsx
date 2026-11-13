@@ -319,6 +319,14 @@ export default function TicketsPage() {
                 <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-[#FF00D4]" />
                 <p className="mt-4 text-xs uppercase tracking-widest">Loading available passes...</p>
               </div>
+            ) : categories.length === 0 ? (
+              <div className="flex flex-col items-center justify-center border border-white/10 bg-white/[0.01] py-20 text-center">
+                <TicketIcon className="h-10 w-10 text-white/30 mb-3" />
+                <h3 className="text-xl font-light text-white">No passes currently available</h3>
+                <p className="mt-2 text-xs text-white/50 max-w-md">
+                  Ticket categories for AWS Re:Invent Fest 2026 have not been published yet or registration is closed. Please check back soon.
+                </p>
+              </div>
             ) : (
               <div className="grid gap-8 lg:grid-cols-3">
                 {categories.map((cat, idx) => {

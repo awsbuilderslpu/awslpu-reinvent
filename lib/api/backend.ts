@@ -1,10 +1,13 @@
 import "server-only"
 
 const BACKEND_API_URL = process.env.BACKEND_API_URL
+const BACKEND_API_KEY = process.env.BACKEND_API_KEY
 
 if (!BACKEND_API_URL) {
   throw new Error("BACKEND_API_URL is not configured")
 }
+
+const backendApiUrl = BACKEND_API_URL
 
 export async function backendFetch(
   path: string,
@@ -16,7 +19,11 @@ export async function backendFetch(
     headers.set("Content-Type", "application/json")
   }
 
-  return fetch(`${BACKEND_API_URL!.replace(/\/$/, "")}${path}`, {
+  if (BACKEND_API_KEY && !headers.has("X-API-KEY")) {
+    headers.set("X-API-KEY", BACKEND_API_KEY)
+  }
+
+  return fetch(`${backendApiUrl.replace(/\/$/, "")}${path}`, {
     ...options,
     headers,
     cache: "no-store"

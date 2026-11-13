@@ -4,7 +4,7 @@ export interface TicketCategory {
   description: string
   price_in_paise: number
   quantity: number
-  quantity_sold: number
+  quantity_sold?: number
   quantity_reserved?: number
   sales_start: string
   sales_end: string
