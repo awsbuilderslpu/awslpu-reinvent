@@ -84,14 +84,16 @@ export function FeaturedSpeakers() {
             {speakers.slice(0, 4).map((spk) => (
               <article
                 key={spk.id}
-                className="group relative flex flex-col justify-between overflow-hidden border border-white/10 bg-white/[0.02] p-6 transition-all duration-300 hover:border-[#FF00D4]/70 hover:shadow-[0_0_30px_rgba(255,0,212,0.12)]"
+                className="group relative flex flex-col justify-between overflow-hidden border border-white/10 bg-white/[0.02] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#FF00D4]/70 hover:shadow-[0_0_30px_rgba(255,0,212,0.16)]"
               >
                 <div>
                   <div className="relative aspect-square w-full overflow-hidden rounded-md border border-white/10 bg-white/[0.05]">
                     {spk.profile_picture ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
                       <img
                         src={spk.profile_picture}
                         alt={spk.full_name}
+                        loading="lazy"
                         className="h-full w-full object-cover grayscale contrast-125 transition-all duration-500 group-hover:grayscale-0 group-hover:scale-105"
                       />
                     ) : (

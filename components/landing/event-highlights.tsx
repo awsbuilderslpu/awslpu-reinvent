@@ -51,7 +51,7 @@ export function EventHighlights() {
           {highlights.map((item, index) => (
             <article
               key={item.number}
-              className={`group relative isolate overflow-hidden px-5 py-7 sm:px-7 sm:py-9 lg:px-9 lg:py-10 ${
+              className={`group relative isolate overflow-hidden px-5 py-7 sm:px-7 sm:py-9 lg:px-9 lg:py-10 transition-colors duration-300 hover:bg-white/[0.02] ${
                 index !== 0 ? "border-t border-white/15 md:border-l md:border-t-0" : ""
               }`}
             >
@@ -64,20 +64,20 @@ export function EventHighlights() {
 
               <div className="mb-7 flex items-center justify-between">
                 <span
-                  className="text-xs"
+                  className="text-xs font-semibold tracking-wider"
                   style={{ color: item.color }}
                 >
                   / {item.number}
                 </span>
 
                 <span
-                  className="h-2 w-2 rotate-45"
+                  className="h-2 w-2 rotate-45 transition-transform duration-300 group-hover:scale-125"
                   style={{ backgroundColor: item.color }}
                 />
               </div>
 
               <h3
-                className="text-5xl font-light tracking-[-0.07em] transition-transform duration-300 group-hover:translate-x-1 sm:text-6xl lg:text-7xl"
+                className="text-4xl font-light tracking-[-0.07em] transition-transform duration-300 group-hover:translate-x-1 sm:text-6xl lg:text-7xl"
                 style={{ color: item.color }}
               >
                 {item.title}

@@ -35,15 +35,15 @@ export function SponsorsPartners() {
           {sponsors.map((sponsor, index) => (
             <div
               key={sponsor.tier}
-              className={`group flex min-h-36 flex-col justify-between border-b border-white/15 px-5 py-6 transition-colors duration-300 hover:bg-white/2.5 sm:min-h-44 sm:px-7 sm:py-8 ${
+              className={`group relative flex min-h-36 flex-col justify-between border-b border-white/15 px-5 py-6 transition-all duration-300 hover:bg-white/[0.03] hover:shadow-[inset_0_0_24px_rgba(255,0,212,0.06)] sm:min-h-44 sm:px-7 sm:py-8 ${
                 index !== 0 ? "sm:border-l" : ""
               }`}
             >
-              <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/40">
+              <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/40 group-hover:text-[#FF2D87] transition-colors">
                 {sponsor.tier}
               </span>
 
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center justify-between gap-4 mt-6">
                 <span className="text-lg font-light text-white/75 transition-colors duration-300 group-hover:text-white sm:text-xl">
                   {sponsor.name}
                 </span>

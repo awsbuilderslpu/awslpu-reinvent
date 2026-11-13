@@ -1,11 +1,13 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertCircle,
   ArrowRight,
   CheckCircle2,
+  Eye,
+  EyeOff,
   Lock,
   User,
 } from "lucide-react";
@@ -24,13 +26,13 @@ function normalizePhone(value: string) {
 function AuthForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login, register } = useAuth();
+  const { login } = useAuth();
 
-  const initialMode =
-    searchParams.get("mode") === "login" ? "login" : "register";
+  const modeParam = searchParams.get("mode");
+  const authMode = modeParam === "login" ? "login" : "register";
 
-  const [authMode, setAuthMode] = useState<"login" | "register">(initialMode);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [statusMessage, setStatusMessage] = useState<{
     type: "success" | "error";
@@ -45,20 +47,11 @@ function AuthForm() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
 
-  useEffect(() => {
-    const mode = searchParams.get("mode");
-
-    if (mode === "login" || mode === "register") {
-      setAuthMode(mode);
-    }
-  }, [searchParams]);
-
   const redirectTarget = searchParams.get("redirect") || "/dashboard";
   const redirectParam = searchParams.get("redirect");
   const redirectQuery = redirectParam ? `&redirect=${encodeURIComponent(redirectParam)}` : "";
 
   const switchMode = (mode: "login" | "register") => {
-    setAuthMode(mode);
     setStatusMessage(null);
     router.replace(`/auth?mode=${mode}${redirectQuery}`, { scroll: false });
   };
@@ -99,13 +92,14 @@ function AuthForm() {
         }
 
         setPassword("");
-        setAuthMode("login");
-        router.replace(`/auth?mode=login${redirectQuery}`, { scroll: false });
-
         setStatusMessage({
           type: "success",
           text: "Account created successfully! Please sign in to continue.",
         });
+
+        setTimeout(() => {
+          switchMode("login");
+        }, 1200);
 
         return;
       }
@@ -141,7 +135,7 @@ function AuthForm() {
     "mb-1 block text-[10px] font-semibold uppercase tracking-[0.18em] text-white/45";
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#050505] text-white">
+    <div className="relative min-h-screen overflow-hidden bg-[#050505] text-white">
       <div className="pointer-events-none fixed inset-0">
         <div className="absolute -left-40 top-0 h-[600px] w-[600px] rounded-full bg-[#6C00FF]/15 blur-[150px]" />
         <div className="absolute -right-40 bottom-0 h-[600px] w-[600px] rounded-full bg-[#FF00D4]/10 blur-[150px]" />
@@ -233,7 +227,7 @@ function AuthForm() {
               <button
                 type="button"
                 onClick={() => switchMode("register")}
-                className={`relative flex-1 pb-4 text-left text-xs font-semibold tracking-[0.15em] transition-colors ${
+                className={`relative flex-1 pb-4 text-left text-xs font-semibold tracking-[0.15em] transition-colors cursor-pointer ${
                   authMode === "register"
                     ? "text-[#FF00D4]"
                     : "text-white/35 hover:text-white"
@@ -248,7 +242,7 @@ function AuthForm() {
               <button
                 type="button"
                 onClick={() => switchMode("login")}
-                className={`relative flex-1 pb-4 text-left text-xs font-semibold tracking-[0.15em] transition-colors ${
+                className={`relative flex-1 pb-4 text-left text-xs font-semibold tracking-[0.15em] transition-colors cursor-pointer ${
                   authMode === "login"
                     ? "text-[#FF00D4]"
                     : "text-white/35 hover:text-white"
@@ -369,7 +363,7 @@ function AuthForm() {
                 <div className="flex items-center gap-3">
                   <Lock className="h-4 w-4 shrink-0 text-white/30" />
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     required
                     autoComplete={
                       authMode === "register"
@@ -381,13 +375,25 @@ function AuthForm() {
                     placeholder="Enter your password"
                     className={inputClass}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="p-1 text-white/40 transition-colors hover:text-white cursor-pointer"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="group flex w-full items-center justify-between bg-[#FF00D4] px-6 py-5 text-sm font-bold tracking-[0.12em] text-black transition-all hover:bg-[#FF2D87] disabled:cursor-not-allowed disabled:opacity-50"
+                className="group flex w-full items-center justify-between bg-[#FF00D4] px-6 py-5 text-sm font-bold tracking-[0.12em] text-black transition-all hover:bg-[#FF2D87] hover:shadow-[0_0_24px_rgba(255,0,212,0.3)] disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.99] cursor-pointer"
               >
                 <span>
                   {loading
@@ -410,7 +416,7 @@ function AuthForm() {
                 onClick={() =>
                   switchMode(authMode === "register" ? "login" : "register")
                 }
-                className="font-semibold text-white transition-colors hover:text-[#FF00D4]"
+                className="font-semibold text-white transition-colors hover:text-[#FF00D4] cursor-pointer"
               >
                 {authMode === "register" ? "Sign in" : "Create an account"}
               </button>
@@ -418,7 +424,7 @@ function AuthForm() {
           </section>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
 
@@ -426,9 +432,9 @@ export default function AuthPage() {
   return (
     <Suspense
       fallback={
-        <main className="flex min-h-screen items-center justify-center bg-[#050505] text-xs tracking-[0.2em] text-white/40">
+        <div className="flex min-h-screen items-center justify-center bg-[#050505] text-xs tracking-[0.2em] text-white/40">
           LOADING...
-        </main>
+        </div>
       }
     >
       <AuthForm />

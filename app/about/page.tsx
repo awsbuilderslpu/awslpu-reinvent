@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowDown, ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowDown, ArrowUpRight } from "lucide-react";
 
 const experiences = [
   {
@@ -24,7 +24,7 @@ const experiences = [
 
 export default function AboutPage() {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#050505] text-white">
+    <div className="relative min-h-screen overflow-hidden bg-[#050505] text-white">
       <section className="relative isolate flex min-h-[92svh] flex-col justify-end overflow-hidden px-6 pb-8 pt-32 sm:px-10 md:min-h-screen md:px-16 md:pb-12 lg:px-24">
         <video
           autoPlay
@@ -57,7 +57,7 @@ export default function AboutPage() {
             </span>
           </div>
 
-          <h1 className="max-w-[1200px] text-[clamp(4rem,11.5vw,10.5rem)] font-extrabold leading-[0.78] tracking-[-0.085em]">
+          <h1 className="max-w-[1200px] text-[clamp(3.2rem,11.5vw,10.5rem)] font-extrabold leading-[0.78] tracking-[-0.085em]">
             BUILT BY
             <br />
             THE <span className="text-[#FF00D4]">CURIOUS.</span>
@@ -246,13 +246,13 @@ export default function AboutPage() {
 
           <Link
             href="/schedule"
-            className="group mt-10 inline-flex items-center gap-4 bg-[#FF00D4] px-7 py-4 text-sm font-semibold text-black transition-colors hover:bg-[#FF2D87]"
+            className="group mt-10 inline-flex items-center gap-4 bg-[#FF00D4] px-7 py-4 text-xs sm:text-sm font-bold uppercase tracking-[0.12em] text-black transition-all hover:bg-[#FF2D87] hover:shadow-[0_0_30px_rgba(255,0,212,0.4)] active:scale-[0.99]"
           >
             EXPLORE THE SCHEDULE
             <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
         </div>
       </section>
-    </main>
+    </div>
   );
 }
