@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import {
   Check,
   ShieldCheck,
@@ -52,8 +52,24 @@ const tierPerks: Record<string, string[]> = {
 }
 
 export default function TicketsPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-[#050505] text-white">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-[#FF00D4]" />
+        </main>
+      }
+    >
+      <TicketsContent />
+    </Suspense>
+  )
+}
+
+function TicketsContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user, authenticated, loading: authLoading } = useAuth()
+  const profileJustCompleted = searchParams.get("profileComplete") === "1"
 
   const [categories, setCategories] = useState<TicketCategory[]>([])
   const [loadingCategories, setLoadingCategories] = useState(true)
@@ -316,17 +332,24 @@ export default function TicketsPage() {
         )}
 
         {authenticated && getMissingProfileFields(user).length > 0 && (
-          <div className="mt-8 flex flex-col gap-4 border border-amber-400/40 bg-amber-400/10 p-5 text-amber-200 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-8 flex flex-col gap-4 border border-[#FF00D4]/30 bg-gradient-to-r from-[#FF00D4]/10 via-[#8B5CFF]/[0.07] to-[#6C00FF]/10 p-5 text-white/80 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm">
               Complete your required contact and academic details in your dashboard before checkout.
             </p>
             <button
               type="button"
               onClick={() => router.push("/dashboard?tab=profile&returnTo=%2Ftickets")}
-              className="shrink-0 text-left text-xs font-semibold uppercase tracking-wider text-amber-100 underline underline-offset-4"
+              className="shrink-0 text-left text-xs font-semibold uppercase tracking-wider text-[#FF2D87] underline underline-offset-4"
             >
               Complete profile
             </button>
+          </div>
+        )}
+
+        {profileJustCompleted && checkoutStep === "select" && (
+          <div className="mt-8 flex items-center gap-3 border border-emerald-300/30 bg-emerald-300/[0.06] p-4 text-sm text-emerald-100">
+            <Check className="h-5 w-5 shrink-0 text-emerald-300" />
+            <p>Your profile is complete. Choose a pass to continue.</p>
           </div>
         )}
 
@@ -338,7 +361,10 @@ export default function TicketsPage() {
         )}
 
         {checkoutStep === "select" && (
-          <div className="mt-12">
+          <div
+            id="ticket-passes"
+            className={`mt-12 ${profileJustCompleted ? "ticket-return-highlight" : ""}`}
+          >
             {loadingCategories ? (
               <div className="flex flex-col items-center justify-center py-24 text-white/50">
                 <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-[#FF00D4]" />

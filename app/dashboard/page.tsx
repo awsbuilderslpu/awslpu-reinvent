@@ -293,14 +293,14 @@ function DashboardContent() {
         {activeTab === "overview" && (
           <div className="mt-8 space-y-8">
             {missingProfileFields.length > 0 && (
-              <div className="flex flex-col gap-4 border border-amber-400/40 bg-amber-400/10 p-5 text-amber-200 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-4 border border-[#FF00D4]/30 bg-gradient-to-r from-[#FF00D4]/10 via-[#8B5CFF]/[0.07] to-[#6C00FF]/10 p-5 text-white/80 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-sm">
                   Complete your contact and academic details before purchasing a ticket.
                 </p>
                 <button
                   type="button"
                   onClick={() => setActiveTab("profile")}
-                  className="shrink-0 text-left text-xs font-semibold uppercase tracking-wider text-amber-100 underline underline-offset-4"
+                  className="shrink-0 text-left text-xs font-semibold uppercase tracking-wider text-[#FF2D87] underline underline-offset-4"
                 >
                   Complete profile
                 </button>
@@ -623,7 +623,7 @@ function DashboardContent() {
               </p>
             </div>
 
-            {profileSuccess && (
+            {profileSuccess && !returnToTickets && (
               <div className="mt-6 flex items-center gap-2 border border-emerald-500/40 bg-emerald-500/10 p-3.5 text-xs text-emerald-300">
                 <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                 <span>{profileSuccess}</span>
@@ -779,13 +779,35 @@ function DashboardContent() {
                   <span>{savingProfile ? "Saving Changes..." : "Save Profile"}</span>
                 </button>
               </div>
-              {returnToTickets && (
-                <div className="flex justify-end">
+              {returnToTickets && missingProfileFields.length > 0 && (
+                <p className="text-right text-xs text-white/55">
+                  Complete the required fields and save your profile to continue to tickets.
+                </p>
+              )}
+              {returnToTickets && missingProfileFields.length === 0 && (
+                <div
+                  className={`flex flex-col gap-3 border border-emerald-300/30 bg-emerald-300/[0.06] p-5 sm:flex-row sm:items-center sm:justify-between ${
+                    profileSuccess ? "profile-saved-highlight" : ""
+                  }`}
+                  aria-live="polite"
+                >
+                  <div className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-300" />
+                    <div>
+                      <p className="text-sm font-semibold text-emerald-100">
+                        {profileSuccess ? "Profile saved and complete" : "Your profile is complete"}
+                      </p>
+                      <p className="mt-1 text-xs text-white/55">
+                        You can continue to choose your ticket.
+                      </p>
+                    </div>
+                  </div>
                   <Link
-                    href="/tickets"
-                    className="text-xs font-semibold uppercase tracking-wider text-[#FF2D87] hover:underline"
+                    href="/tickets?profileComplete=1#ticket-passes"
+                    className="flex h-11 shrink-0 items-center justify-center gap-2 border border-[#FF00D4]/60 bg-[#FF00D4]/15 px-5 text-xs font-semibold uppercase tracking-wider text-white shadow-[0_0_22px_rgba(255,0,212,0.12)] transition-colors hover:border-[#FF00D4] hover:bg-[#FF00D4]/25"
                   >
-                    Continue to ticket purchase
+                    Continue to tickets
+                    <ArrowRight className="h-4 w-4 text-[#FF2D87]" />
                   </Link>
                 </div>
               )}
