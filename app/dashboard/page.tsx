@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import {
   ArrowUpRight,
   ArrowRight,
@@ -25,14 +25,32 @@ import {
 } from "lucide-react"
 import { useAuth } from "@/providers/auth-provider"
 import { QrCode } from "@/components/qr-code"
+import { getMissingProfileFields } from "@/lib/profile-completion"
 import type { Ticket } from "@/types/ticketing"
 import type { Venue } from "@/types/schedule"
 
 export default function DashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-[#050505] text-white">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-[#FF2D87]" />
+        </main>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
+  )
+}
+
+function DashboardContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user, loading, authenticated, refreshUser } = useAuth()
 
-  const [activeTab, setActiveTab] = useState<"overview" | "tickets" | "profile" | "guide">("overview")
+  const [activeTab, setActiveTab] = useState<"overview" | "tickets" | "profile" | "guide">(
+    searchParams.get("tab") === "profile" ? "profile" : "overview"
+  )
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [loadingTickets, setLoadingTickets] = useState(true)
   const [ticketError, setTicketError] = useState<string | null>(null)
@@ -53,6 +71,7 @@ export default function DashboardPage() {
   const [savingProfile, setSavingProfile] = useState(false)
   const [profileSuccess, setProfileSuccess] = useState<string | null>(null)
   const [profileError, setProfileError] = useState<string | null>(null)
+  const returnToTickets = searchParams.get("returnTo") === "/tickets"
 
   useEffect(() => {
     if (!loading && !authenticated) {
@@ -179,6 +198,7 @@ export default function DashboardPage() {
   }
 
   const fullName = `${user.first_name} ${user.last_name}`
+  const missingProfileFields = getMissingProfileFields(user)
 
   return (
     <main className="min-h-screen bg-[#050505] text-white">
@@ -272,6 +292,21 @@ export default function DashboardPage() {
 
         {activeTab === "overview" && (
           <div className="mt-8 space-y-8">
+            {missingProfileFields.length > 0 && (
+              <div className="flex flex-col gap-4 border border-amber-400/40 bg-amber-400/10 p-5 text-amber-200 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm">
+                  Complete your contact and academic details before purchasing a ticket.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("profile")}
+                  className="shrink-0 text-left text-xs font-semibold uppercase tracking-wider text-amber-100 underline underline-offset-4"
+                >
+                  Complete profile
+                </button>
+              </div>
+            )}
+
             <div className="grid gap-5 lg:grid-cols-[1.5fr_0.9fr]">
               <div className="relative overflow-hidden border border-white/10 bg-white/[0.025] p-8 sm:p-12">
                 <div className="pointer-events-none absolute -right-20 -top-28 h-80 w-80 rounded-full bg-[#8B5CFF]/15 blur-[100px]" />
@@ -658,6 +693,7 @@ export default function DashboardPage() {
                     <label className="text-xs uppercase tracking-wider text-white/50">University / College / Company</label>
                     <input
                       type="text"
+                      required
                       placeholder="e.g. Lovely Professional University"
                       value={institution}
                       onChange={(e) => setInstitution(e.target.value)}
@@ -670,6 +706,7 @@ export default function DashboardPage() {
                       <label className="text-xs uppercase tracking-wider text-white/50">Degree</label>
                       <input
                         type="text"
+                        required
                         placeholder="e.g. B.Tech"
                         value={degree}
                         onChange={(e) => setDegree(e.target.value)}
@@ -680,6 +717,7 @@ export default function DashboardPage() {
                       <label className="text-xs uppercase tracking-wider text-white/50">Department</label>
                       <input
                         type="text"
+                        required
                         placeholder="e.g. Computer Science"
                         value={department}
                         onChange={(e) => setDepartment(e.target.value)}
@@ -690,6 +728,8 @@ export default function DashboardPage() {
                       <label className="text-xs uppercase tracking-wider text-white/50">Graduation Year</label>
                       <input
                         type="number"
+                        required
+                        min="1"
                         placeholder="e.g. 2027"
                         value={graduationYear}
                         onChange={(e) => setGraduationYear(e.target.value)}
@@ -739,6 +779,16 @@ export default function DashboardPage() {
                   <span>{savingProfile ? "Saving Changes..." : "Save Profile"}</span>
                 </button>
               </div>
+              {returnToTickets && (
+                <div className="flex justify-end">
+                  <Link
+                    href="/tickets"
+                    className="text-xs font-semibold uppercase tracking-wider text-[#FF2D87] hover:underline"
+                  >
+                    Continue to ticket purchase
+                  </Link>
+                </div>
+              )}
             </form>
           </div>
         )}

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { backendFetch, backendJson } from "@/lib/api/backend"
 import { getAuthCookies } from "@/lib/api/auth-cookies"
+import { getMissingProfileFields } from "@/lib/profile-completion"
+import type { AuthUser } from "@/types/auth"
 import type { Order } from "@/types/ticketing"
 
 export async function POST(request: Request) {
@@ -14,6 +16,32 @@ export async function POST(request: Request) {
   }
 
   try {
+    const profileResponse = await backendFetch("/api/v1/users/me", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
+
+    if (!profileResponse.ok) {
+      const errorData = await profileResponse.json().catch(() => null)
+      return NextResponse.json(
+        { detail: errorData?.detail || "Unable to verify attendee profile" },
+        { status: profileResponse.status }
+      )
+    }
+
+    const user = await backendJson<AuthUser>(profileResponse)
+    const missingFields = getMissingProfileFields(user)
+
+    if (missingFields.length > 0) {
+      return NextResponse.json(
+        {
+          detail: `Complete your attendee profile in the dashboard before purchasing a ticket. Missing: ${missingFields.join(", ")}.`
+        },
+        { status: 400 }
+      )
+    }
+
     const body = await request.json()
 
     const response = await backendFetch("/api/v1/orders/", {

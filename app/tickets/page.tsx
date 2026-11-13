@@ -18,6 +18,7 @@ import {
 } from "lucide-react"
 import { useAuth } from "@/providers/auth-provider"
 import { openRazorpayCheckout } from "@/lib/razorpay"
+import { getMissingProfileFields } from "@/lib/profile-completion"
 import type { TicketCategory, Order, Ticket } from "@/types/ticketing"
 
 interface CartSelection {
@@ -122,6 +123,10 @@ export default function TicketsPage() {
       router.push("/auth?mode=login&redirect=/tickets")
       return
     }
+    if (getMissingProfileFields(user).length > 0) {
+      router.push("/dashboard?tab=profile&returnTo=%2Ftickets")
+      return
+    }
     if (existingTicket) {
       setOrderError("You already have an active pass. Each attendee is strictly limited to 1 ticket.")
       return
@@ -133,6 +138,11 @@ export default function TicketsPage() {
   const handleProceedPayment = async () => {
     if (!authenticated) {
       router.push("/auth?mode=login&redirect=/tickets")
+      return
+    }
+
+    if (getMissingProfileFields(user).length > 0) {
+      router.push("/dashboard?tab=profile&returnTo=%2Ftickets")
       return
     }
 
@@ -302,6 +312,21 @@ export default function TicketsPage() {
               <span>View Pass in Dashboard</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
+          </div>
+        )}
+
+        {authenticated && getMissingProfileFields(user).length > 0 && (
+          <div className="mt-8 flex flex-col gap-4 border border-amber-400/40 bg-amber-400/10 p-5 text-amber-200 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm">
+              Complete your required contact and academic details in your dashboard before checkout.
+            </p>
+            <button
+              type="button"
+              onClick={() => router.push("/dashboard?tab=profile&returnTo=%2Ftickets")}
+              className="shrink-0 text-left text-xs font-semibold uppercase tracking-wider text-amber-100 underline underline-offset-4"
+            >
+              Complete profile
+            </button>
           </div>
         )}
 
