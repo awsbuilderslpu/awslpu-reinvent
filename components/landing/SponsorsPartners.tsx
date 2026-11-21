@@ -35,22 +35,53 @@ export function SponsorsPartners() {
           {sponsors.map((sponsor, index) => (
             <div
               key={sponsor.tier}
-              className={`group flex min-h-36 flex-col justify-between border-b border-white/15 px-5 py-6 transition-colors duration-300 hover:bg-white/2.5 sm:min-h-44 sm:px-7 sm:py-8 ${
-                index !== 0 ? "sm:border-l" : ""
-              }`}
+              className={`group flex min-h-36 flex-col justify-between border-b border-white/15 px-5 py-6 transition-colors duration-300 hover:bg-white/2.5 sm:min-h-44 sm:px-7 sm:py-8 ${index !== 0 ? "sm:border-l" : ""
+                }`}
             >
               <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/40">
                 {sponsor.tier}
               </span>
 
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-lg font-light text-white/75 transition-colors duration-300 group-hover:text-white sm:text-xl">
-                  {sponsor.name}
-                </span>
+              <div>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-lg font-light text-white/75 transition-colors duration-300 group-hover:text-white sm:text-xl">
+                    {sponsor.name}
+                  </span>
 
-                <span className="text-[#FF2D87] transition-transform duration-300 group-hover:translate-x-1">
-                  ↗
-                </span>
+
+                  <span className="text-[#FF2D87] transition-transform duration-300 group-hover:translate-x-1">
+                    ↗
+                  </span>
+                </div>
+
+                {sponsor.tier === "TITLE" && (
+                  <div className="mt-4 flex max-w-full items-center gap-4 overflow-hidden sm:gap-6">
+                    <img
+                      src="/partners/aws-cleanED.png"
+                      alt="AWS"
+                      className="h-10 max-w-[35%] w-auto shrink object-contain sm:h-12"
+                    />
+                    <img
+                      src="/partners/lpu-clean-boundaryED.png"
+                      alt="LPU"
+                      className="h-10 max-w-[55%] w-auto shrink object-contain sm:h-12"
+                    />
+                  </div>
+                )}
+
+                {sponsor.tier === "TECHNOLOGY" && (
+                  <div className="mt-4 flex items-center gap-3 sm:gap-4">
+                    <img
+                      src="/partners/awssbg-transparentED.png"
+                      alt="AWS SBG"
+                      className="h-11 w-auto shrink-0 object-contain sm:h-12"
+                    />
+                    <span className="text-sm font-medium leading-tight tracking-tight text-white sm:text-base">
+                      AWS Student Builder Group <br />
+                      <span className="text-white/55">at LPU</span>
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           ))}
