@@ -70,17 +70,17 @@ export function SponsorsPartners() {
                 )}
 
                 {sponsor.tier === "TECHNOLOGY" && (
-                  <div className="mt-4">
+                  <div className="mt-4 flex items-center gap-4 sm:gap-5">
                     <img
-                      src="/partners/awssbg.png"
-                      alt="AWS SBG"
-                      className="h-10 w-auto object-contain sm:h-12"
+                      src="/partners/awssbg-transparent.png"
+                      alt="AWS Student Builder Group"
+                      className="h-11 w-auto shrink-0 object-contain sm:h-12"
                     />
-                    <span className="text-base font-medium tracking-tight text-white sm:text-lg">
-                      AWS SBG <span className="text-[#FF00D4]"></span>
+                    <span className="text-sm font-medium leading-tight tracking-tight text-white sm:text-base">
+                      AWS Student Builder Group
+                      <br />
+                      <span className="text-white/55">at LPU</span>
                     </span>
-                    
-                    
                   </div>
                 )}
               </div>
