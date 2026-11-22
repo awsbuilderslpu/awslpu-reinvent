@@ -160,6 +160,29 @@ section {
   animation: marquee 32s linear infinite;
 }
 
+/* Countdown digit flip */
+
+@keyframes countdown-flip {
+  0% {
+    transform: perspective(400px) rotateX(0deg);
+    opacity: 0.4;
+  }
+
+  50% {
+    transform: perspective(400px) rotateX(-8deg);
+    opacity: 0.75;
+  }
+
+  100% {
+    transform: perspective(400px) rotateX(0deg);
+    opacity: 1;
+  }
+}
+
+.countdown-flip {
+  animation: countdown-flip 350ms ease-out;
+}
+
 /* Live indicator */
 
 @keyframes subtle-pulse {

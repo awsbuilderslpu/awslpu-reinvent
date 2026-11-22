@@ -1,5 +1,6 @@
 import { Hero } from "@/components/landing/hero";
 import { EventMarquee } from "@/components/landing/event-marquee";
+import { Countdown } from "@/components/landing/countdown";
 import { About } from "@/components/landing/about";
 import { ScheduleTeaser } from "@/components/landing/schedule-teaser";
 import { FeaturedSpeakers } from "@/components/landing/featured-speakers";
@@ -20,6 +21,7 @@ export default function Home() {
       />
       <Hero />
       <EventMarquee />
+      <Countdown />
       <About />
       <ScheduleTeaser />
       <FeaturedSpeakers />
