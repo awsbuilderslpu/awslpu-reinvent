@@ -36,16 +36,29 @@ export interface TokenResponse {
 export interface LoginRequest {
   email: string
   password: string
+  turnstileToken: string
 }
 
 export interface RegisterRequest {
   first_name: string
   last_name: string
+  name?: string
   email: string
   phone: string
   workspace_name?: string | null
   workspace_uid?: string | null
   password: string
+  turnstileToken: string
+}
+
+export class AuthApiError extends Error {
+  status: number
+
+  constructor(message: string, status: number) {
+    super(message)
+    this.name = "AuthApiError"
+    this.status = status
+  }
 }
 
 export interface RefreshTokenRequest {
