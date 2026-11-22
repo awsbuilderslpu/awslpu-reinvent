@@ -102,6 +102,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="font-sans">
+      <head>
+        <script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+        />
+      </head>
       <body className="min-h-screen antialiased">
         <AuthProvider>
           <Navbar />

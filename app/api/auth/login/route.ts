@@ -12,6 +12,16 @@ export async function POST(request: Request) {
       body: JSON.stringify(body)
     })
 
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null)
+      return NextResponse.json(
+        {
+          detail: errorData?.detail || errorData?.message || "Login failed"
+        },
+        { status: response.status }
+      )
+    }
+
     const tokens = await backendJson<TokenResponse>(response)
 
     const result = NextResponse.json({
@@ -26,7 +36,7 @@ export async function POST(request: Request) {
       {
         detail: error instanceof Error ? error.message : "Login failed"
       },
-      { status: 400 }
+      { status: 500 }
     )
   }
 }

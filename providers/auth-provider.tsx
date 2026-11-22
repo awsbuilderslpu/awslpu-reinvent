@@ -9,10 +9,11 @@ import {
   type ReactNode
 } from "react"
 
-import type {
-  AuthUser,
-  LoginRequest,
-  RegisterRequest
+import {
+  AuthApiError,
+  type AuthUser,
+  type LoginRequest,
+  type RegisterRequest
 } from "@/types/auth"
 
 interface AuthContextType {
@@ -76,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
 
     if (!response.ok) {
-      throw new Error(await getError(response))
+      throw new AuthApiError(await getError(response), response.status)
     }
 
     const authenticatedUser = await refreshUser()
@@ -99,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
 
     if (!response.ok) {
-      throw new Error(await getError(response))
+      throw new AuthApiError(await getError(response), response.status)
     }
 
     const authenticatedUser = await refreshUser()

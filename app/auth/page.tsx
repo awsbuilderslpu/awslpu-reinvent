@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertCircle,
@@ -10,6 +10,30 @@ import {
   User,
 } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
+import { AuthApiError } from "@/types/auth";
+import Turnstile, { TurnstileRef } from "@/components/Turnstile/Turnstile";
+
+function getErrorMessage(status: number, defaultMessage?: string): string {
+  if (status === 401) {
+    return (
+      defaultMessage ||
+      "Invalid login credentials. Please verify your email and password."
+    );
+  }
+  if (status === 403) {
+    return "Security verification failed. Please complete the verification challenge again.";
+  }
+  if (status === 429) {
+    return (
+      defaultMessage ||
+      "Too many requests. Please wait a moment and try again later."
+    );
+  }
+  if (status >= 500 && status < 600) {
+    return "Server error occurred. Please try again later.";
+  }
+  return defaultMessage || "Authentication failed. Please verify your details.";
+}
 
 function normalizePhone(value: string) {
   const cleaned = value.replace(/[^\d+]/g, "");
@@ -44,6 +68,8 @@ function AuthForm() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileRef>(null);
 
   useEffect(() => {
     const mode = searchParams.get("mode");
@@ -60,11 +86,29 @@ function AuthForm() {
   const switchMode = (mode: "login" | "register") => {
     setAuthMode(mode);
     setStatusMessage(null);
+    setTurnstileToken(null);
+    turnstileRef.current?.reset();
     router.replace(`/auth?mode=${mode}${redirectQuery}`, { scroll: false });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (loading) {
+      return;
+    }
+
+    if (!turnstileToken) {
+      setStatusMessage({
+        type: "error",
+        text: "Please complete the security verification challenge before proceeding.",
+      });
+      return;
+    }
+
+    // Capture token and clear from state immediately to prevent reuse / duplicate submissions
+    const tokenToSubmit = turnstileToken;
+    setTurnstileToken(null);
     setLoading(true);
     setStatusMessage(null);
 
@@ -78,6 +122,7 @@ function AuthForm() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
+            name: `${firstName.trim()} ${lastName.trim()}`.trim(),
             first_name: firstName.trim(),
             last_name: lastName.trim(),
             email: normalizedEmail,
@@ -85,19 +130,22 @@ function AuthForm() {
             workspace_name: workspaceName.trim(),
             workspace_uid: workspaceId.trim(),
             password,
+            turnstileToken: tokenToSubmit,
           }),
         });
 
         const data = await response.json().catch(() => null);
 
         if (!response.ok) {
-          throw new Error(
-            data?.detail ||
-              data?.message ||
-              "Registration failed. Please try again."
+          const errMsg = getErrorMessage(
+            response.status,
+            data?.detail || data?.message
           );
+          throw new AuthApiError(errMsg, response.status);
         }
 
+        // Reset widget after successful submission
+        turnstileRef.current?.reset();
         setPassword("");
         setAuthMode("login");
         router.replace(`/auth?mode=login${redirectQuery}`, { scroll: false });
@@ -113,7 +161,11 @@ function AuthForm() {
       await login({
         email: normalizedEmail,
         password,
+        turnstileToken: tokenToSubmit,
       });
+
+      // Reset widget after successful submission
+      turnstileRef.current?.reset();
 
       setStatusMessage({
         type: "success",
@@ -122,12 +174,19 @@ function AuthForm() {
 
       setTimeout(() => router.push(redirectTarget), 1000);
     } catch (err) {
+      // Reset the widget after failed verification or submission error
+      turnstileRef.current?.reset();
+
+      let errorMessage = "Authentication failed. Please verify your details.";
+      if (err instanceof AuthApiError) {
+        errorMessage = getErrorMessage(err.status, err.message);
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+
       setStatusMessage({
         type: "error",
-        text:
-          err instanceof Error
-            ? err.message
-            : "Authentication failed. Please verify your details.",
+        text: errorMessage,
       });
     } finally {
       setLoading(false);
@@ -384,9 +443,60 @@ function AuthForm() {
                 </div>
               </div>
 
+              <div className="pt-2">
+                <label className={labelClass}>Security Verification *</label>
+                <div className="flex min-h-[65px] items-center">
+                  <Turnstile
+                    ref={turnstileRef}
+                    action={authMode === "register" ? "signup" : "login"}
+                    theme="dark"
+                    onSuccess={(token) => {
+                      setTurnstileToken(token);
+                      if (statusMessage?.text.includes("verification")) {
+                        setStatusMessage(null);
+                      }
+                    }}
+                    onExpire={() => {
+                      setTurnstileToken(null);
+                      setStatusMessage({
+                        type: "error",
+                        text: "Security verification expired. Please complete the challenge again.",
+                      });
+                    }}
+                    onError={(error) => {
+                      setTurnstileToken(null);
+                      if (error === "ScriptLoadError") {
+                        setStatusMessage({
+                          type: "error",
+                          text: "Could not load verification service. If you have an ad blocker (uBlock Origin, AdBlock) or Brave Shields enabled, please disable it for localhost and refresh.",
+                        });
+                        return;
+                      }
+
+                      if (
+                        error === "InvalidSiteKey" ||
+                        process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ===
+                          "your_public_site_key"
+                      ) {
+                        setStatusMessage({
+                          type: "error",
+                          text: "Turnstile site key is not configured. Replace 'your_public_site_key' in .env.local with testing key '1x00000000000000000000AA'.",
+                        });
+                        return;
+                      }
+
+                      setStatusMessage({
+                        type: "error",
+                        text: `Security verification failed (code: ${error || "network error"}). Please check your site key and allowed domains in Cloudflare.`,
+                      });
+                    }}
+                  />
+                </div>
+              </div>
+
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !turnstileToken}
                 className="group flex w-full items-center justify-between bg-[#FF00D4] px-6 py-5 text-sm font-bold tracking-[0.12em] text-black transition-all hover:bg-[#FF2D87] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <span>
